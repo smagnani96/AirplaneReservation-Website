@@ -3,7 +3,7 @@
 <form name="register-form" id="register-form" method="post" autocomplete="on" action="">
   	<div>
     	<label for="email" >Username</label><br/>
-        <input type="email" name='email' id="email" placeholder="esempio@prova.com" required><br/>
+        <input type="email" name='email' id="email" pattern='^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$' placeholder="esempio@prova.com" required><br/>
     </div>
     <div>	
         <label for="password">Password</label><br/>
