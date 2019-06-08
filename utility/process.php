@@ -3,76 +3,64 @@
 require_once 'db.php';
 require_once 'utility.php';
 
+/*Check for HTTPS*/
+if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVER_PORT'] != 443) {
+	echo json_encode(ErrorObject::HTTPS_ENFORCE);
+	return;
+}
+
 /*Start if not present a secure session*/
 if (session_status() == PHP_SESSION_NONE) {
 	sec_session_start();
 }
 
-/*Check if at least is specified the action*/
-if (!isset($_POST["action"])) {
-	echo json_encode(array('err' => -1, 'msg' => "Wrong data sent!"));
+/*Check if correct data*/
+if (!isset($_POST["action"]) || !in_array($_POST['action'], array('login', 'logout', 'register')) ||
+	($_POST['action'] != 'logout' && !isset($_POST['email'], $_POST['p']))) {
+	echo json_encode(ErrorObject::MISSING_DATA);
 	return;
 }
 
 /*Check if it's a logout action*/
 if ($_POST["action"] == "logout") {
-	logout();
-	echo json_encode(array('err' => 0, 'msg' => "Successfully logged out!"));
+	echo json_encode(logout());
 	return;
 }
 
-if (!isset($_POST['email'], $_POST['p'])) {
-	echo json_encode(array('err' => -1, 'msg' => "Wrong data sent!"));
+/*Sanitizing parameters*/
+$email = $_POST['email'];
+$pass = $_POST['p'];
+$_POST['email'] = filter_var($email, FILTER_SANITIZE_STRING);
+$_POST['p'] = filter_var($pass, FILTER_SANITIZE_STRING);
+
+/*Check if they had some code*/
+if ($email != $_POST['email'] || $pass != $_POST['p']) {
+	echo json_encode(ErrorObject::CODE_INJECTION);
 	return;
 }
 
-$filteredEmail = filter_var($_POST['email'], FILTER_SANITIZE_STRING);
-$filteredPass = filter_var($_POST['p'], FILTER_SANITIZE_STRING);
-if ($filteredEmail != $_POST['email'] || $filteredPass != $_POST['p']) {
-	echo json_encode(array('err' => -1, 'msg' => "Did you try to fool me with some code?"));
+/*Check if email compliant*/
+if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+	echo json_encode(ErrorObject::EMAIL_NOT_COMPLIANT);
+	return;
+}
+
+/*Check if password compliant*/
+if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z0-9]).*$/', $_POST['p'])) {
+	echo json_encode(ErrorObject::PASSWORD_NOT_COMPLIANT);
 	return;
 }
 
 /*Check if it's a login request*/
 if ($_POST["action"] == "login") {
-	if (login($_POST['email'], $_POST['p'], $conn)) {
-		echo json_encode(array('err' => 0, 'msg' => "Successfully logged in!"));
-	} else {
-		echo json_encode(array('err' => -1, 'msg' => "Username/Password wrong!"));
-	}
+	echo json_encode(login($_POST['email'], $_POST['p'], $conn));
 	return;
 }
 
 /*Check if it's a register request*/
 if ($_POST["action"] == "register") {
-	/*Create a random salt key*/
-	$random_salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true));
-	/*Hash the password with the random salt*/
-	$password = hash('sha512', $_POST['p'] . $random_salt);
-
-	if (!($insert_stmt = $conn->prepare("INSERT INTO user (email, password, salt) VALUES (?, ?, ?)"))) {
-		echo json_encode(array('err' => -1, 'msg' => "Failed to perform registration!"));
-		return;
-	}
-	/*Perform the query binding params*/
-	$insert_stmt->bind_param('sss', $_POST['email'], $password, $random_salt);
-	$insert_stmt->execute();
-	$insert_stmt->store_result();
-	/*Check if the query went well or not*/
-	if ($insert_stmt->affected_rows <= 0) {
-		if (mysqli_errno($conn) == 1062) {
-			echo json_encode(array('err' => -1, 'msg' => "User already registered!"));
-		} else {
-			echo json_encode(array('err' => -1, 'msg' => "Error registering user!"));
-		}
-	} else {
-		echo json_encode(array('err' => 0, 'msg' => "Successfully registered!"));
-	}
+	echo json_encode(register($_POST['email'], $_POST['p'], $conn));
 	return;
 }
-
-/*If it reaches this code means that action is set, but all the other parameters were not complete*/
-echo json_encode(array('err' => -1, 'msg' => "Wrong action requested!"));
-return;
 
 ?>
