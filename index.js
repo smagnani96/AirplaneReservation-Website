@@ -30,8 +30,8 @@ $(document).ready(() => {
 						success: (result) => {
 							/*Set the content of the central div*/
 							$('#content').html(result);
-							/*Set the action to the submit button (Perform formhash)*/
-							$("#submit").click(() => { formhash("login"); });
+							/*Set the action to the submit button (Perform formSubmit)*/
+							$("#submit").click(() => { formSubmit("login"); });
 							/*Check if `remember me` is selected: if yes then set a cookie for the username*/
 							var username = getCookie("email");
 							if (username != "")
@@ -61,8 +61,8 @@ $(document).ready(() => {
 						success: (result) => {
 							/*Set the content of the main div*/
 							$('#content').html(result);
-							/*Set the action to be performed when submit is clicked (formhash)*/
-							$("#submit").click(() => { formhash("register") });
+							/*Set the action to be performed when submit is clicked (formSubmit)*/
+							$("#submit").click(() => { formSubmit("register") });
 							/*Register the key enter pressed to perform form submission*/
 							registerEnterForm("register");
 						}
@@ -139,10 +139,10 @@ $(document).ready(() => {
 		});
 	}
 
-	function formhash(action) {
+	function formSubmit(action) {
 		if ((action == "login" && !$("#login-form")[0].checkValidity()) ||
 			(action == "register" && !$("#register-form")[0].checkValidity())) {
-			showFailed("Non valid data, please fill it correctly (password must have 1 lower case and 1 upper case or 1 number)", false);
+			showFailed("Non valid data, please fill it correctly", false);
 			return;
 		}
 
