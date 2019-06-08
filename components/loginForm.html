@@ -3,11 +3,11 @@
 <form name="login-form" id="login-form" method="post" action="" autocomplete="on">
 	<div>
 		<label for="email">Username</label><br/>
-		<input type="email" name="email" id="email" placeholder="username1@gmail.com" required autocomplete="on"><br/>	
+		<input type="email" name="email" id="email" pattern='^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$' placeholder="username1@gmail.com" required autocomplete="on"><br/>	
 	</div>
 	<div>
 		<label for="password">Password</label><br/>
-		<input type="password" name="password" id="password" placeholder="****" required autocomplete="off"><br/>
+		<input type="password" name="password" id="password" pattern='^(?=.*[a-z])(?=.*[A-Z0-9]).*$' placeholder="****" required autocomplete="off"><br/>
 	</div>
 	<div>
 		<label for="remember">Remember me</label><br/>
