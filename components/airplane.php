@@ -14,22 +14,22 @@ $minereserved = [];
 
 $logged = login_check($conn);
 
-if (!($sql = $conn->prepare("SELECT email, seat, purchased from reservation"))) {
-	echo -1;
-	return;
-}
-
-$sql->execute();
-$sql->bind_result($email, $seat, $ispurchase);
-$sql->store_result();
-while ($sql->fetch()) {
-	if ($ispurchase) {
-		array_push($purchasedSeats, $seat);
-	} else if ($logged && $email == $_SESSION["username"]) {
-		array_push($minereserved, $seat);
-	} else {
-		array_push($reservedSeats, $seat);
+if ($sql = $conn->prepare("SELECT email, seat, purchased from reservation")) {
+	$sql->execute();
+	$sql->bind_result($email, $seat, $ispurchase);
+	$sql->store_result();
+	while ($sql->fetch()) {
+		if ($ispurchase) {
+			array_push($purchasedSeats, $seat);
+		} else if ($logged === true && $email == $_SESSION["username"]) {
+			array_push($minereserved, $seat);
+		} else {
+			array_push($reservedSeats, $seat);
+		}
 	}
+} else {
+	echo json_encode(ErrorObject::DB_INTERNAL_ERROR);
+	return;
 }
 
 $total = $width * $length;
@@ -59,11 +59,11 @@ foreach (range('A', chr(ord('A') + $length - 1)) as $letter) {
 		if (in_array("" . $letter . $number, $purchasedSeats)) {
 			$class = "unavailable";
 		} else if (in_array("" . $letter . $number, $reservedSeats)) {
-			$class = $logged ? "clickable reserved" : "reserved";
+			$class = $logged === true ? "clickable reserved" : "reserved";
 		} else if (in_array("" . $letter . $number, $minereserved)) {
-			$class = $logged ? "clickable myreserved" : "myreserved";
+			$class = $logged === true ? "clickable myreserved" : "myreserved";
 		} else {
-			$class = $logged ? "clickable available" : "available";
+			$class = $logged === true ? "clickable available" : "available";
 		}
 		echo "<img src='res/Seat.png' alt='AirplaneSeat' id='" . $letter . $number . "' class='seat " . $class . "'>";
 	}
