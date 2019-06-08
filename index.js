@@ -31,7 +31,7 @@ $(document).ready(() => {
 							/*Set the content of the central div*/
 							$('#content').html(result);
 							/*Set the action to the submit button (Perform formhash)*/
-							$("#submit").click(() => { formhash($("#password").val(), "login"); });
+							$("#submit").click(() => { formhash("login"); });
 							/*Check if `remember me` is selected: if yes then set a cookie for the username*/
 							var username = getCookie("email");
 							if (username != "")
@@ -62,7 +62,7 @@ $(document).ready(() => {
 							/*Set the content of the main div*/
 							$('#content').html(result);
 							/*Set the action to be performed when submit is clicked (formhash)*/
-							$("#submit").click(() => { formhash($("#password").val(), "register") });
+							$("#submit").click(() => { formhash("register") });
 							/*Register the key enter pressed to perform form submission*/
 							registerEnterForm("register");
 						}
@@ -139,29 +139,28 @@ $(document).ready(() => {
 		});
 	}
 
-	function formhash(password, action) {
+	function formhash(action) {
 		if ((action == "login" && !$("#login-form")[0].checkValidity()) ||
 			(action == "register" && !$("#register-form")[0].checkValidity())) {
 			showFailed("Non valid data, please fill it correctly (password must have 1 lower case and 1 upper case or 1 number)", false);
 			return;
 		}
 
-		var tmp = hex_sha512(password);
-
-		if (action == "login" && $("#remember").val() == "on")
-			setCookie("email", $("#email").val(), 2);
-
-		dataString = "action=" + action + "&email=" + $("#email").val() + "&p=" + tmp;
-
 		$.ajax({
 			type: "POST",
 			url: "utility/process.php",
-			data: dataString,
+			data: "action=" + action + "&email=" + $("#email").val() + "&p=" + $("#password").val(),
 			success: function(res) {
 				var parsed = JSON.parse(res);
-				if (parsed.err == 0) showSuccess(parsed.msg, true);
-				else showFailed(parsed.msg, false);
-			},
+				if (parsed.err == 0) {
+					if (action == "login" && $("#remember").is(":checked")) {
+						setCookie("email", $("#email").val(), 2);
+					}
+					showSuccess(parsed.msg, true);
+				} else {
+					showFailed(parsed.msg, false);
+				}
+			}
 		});
 	}
 
