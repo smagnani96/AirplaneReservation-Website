@@ -25,18 +25,9 @@ create table reservation (
 	purchased int not null,
 	constraint IDReservation_composition primary key (seat));
 
-create table log (
-	email varchar(100) not null,
-	time varchar(30) not null,
-	constraint IDlog primary key (email, time));
-
 -- Constraints Section
 -- ___________________
 
 alter table reservation add constraint FKcomposition_reservation
-	foreign key (email)
-	references user (email);
-
-alter table log add constraint FKlogin
 	foreign key (email)
 	references user (email);
