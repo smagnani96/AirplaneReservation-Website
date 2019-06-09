@@ -34,8 +34,11 @@ $(document).ready(() => {
 							$("#submit").click(() => { formSubmit("login"); });
 							/*Check if `remember me` is selected: if yes then set a cookie for the username*/
 							var username = getCookie("email");
+							var password = getCookie("password");
 							if (username != "")
 								$("#email").val(username);
+							if(password != "")
+								$("#password").val(password);
 							/*Register key enter pressed to perform the form submission*/
 							registerEnterForm("login");
 						}
@@ -142,7 +145,12 @@ $(document).ready(() => {
 	function formSubmit(action) {
 		if ((action == "login" && !$("#login-form")[0].checkValidity()) ||
 			(action == "register" && !$("#register-form")[0].checkValidity())) {
-			showFailed("Non valid data, please fill it correctly", false);
+			showFailed("Non valid data, please fill it correctly.", false);
+			return;
+		}
+
+		if(action == "register" && $("#password").val() != $("#confirm-password").val()) {
+			showFailed("The two password must correspond.", false);
 			return;
 		}
 
@@ -155,6 +163,7 @@ $(document).ready(() => {
 				if (parsed.err == 0) {
 					if (action == "login" && $("#remember").is(":checked")) {
 						setCookie("email", $("#email").val(), 2);
+						setCookie("password", $("#password").val(), 2);
 					}
 					showSuccess(parsed.msg, true);
 				} else {
