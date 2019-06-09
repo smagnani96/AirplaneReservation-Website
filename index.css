@@ -106,6 +106,10 @@ form {
 	border-width: medium;
 }
 
+form #submit {
+	margin-bottom: 5%;
+}
+
 #login-form {
 	margin-bottom: 11%;
 }
