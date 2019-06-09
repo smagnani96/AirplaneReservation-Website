@@ -30,7 +30,7 @@ if ($_POST["action"] == "logout") {
 /*Sanitizing parameters*/
 $email = $_POST['email'];
 $pass = $_POST['p'];
-$_POST['email'] = filter_var($email, FILTER_SANITIZE_STRING);
+$_POST['email'] = filter_var($email, FILTER_VALIDATE_EMAIL);
 $_POST['p'] = filter_var($pass, FILTER_SANITIZE_STRING);
 
 /*Check if they had some code*/
