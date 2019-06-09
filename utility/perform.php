@@ -30,6 +30,14 @@ if (!isset($_POST['action']) || !in_array($_POST['action'], array('buy', 'reserv
 	return;
 }
 
+$seat = $_POST['id'];
+$_POST['id'] = filter_var($seat, FILTER_VALIDATE_EMAIL);
+
+if ($seat != $_POST['id']) {
+	echo json_encode(ErrorObject::CODE_INJECTION);
+	return;
+}
+
 /*Check if the action is reserve and there's the id of the seat*/
 if ($_POST["action"] == "reserve") {
 	/*Check if the seat is correct in the domain*/
