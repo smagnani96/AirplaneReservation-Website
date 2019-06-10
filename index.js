@@ -26,21 +26,26 @@ $(document).ready(() => {
 				$("#loginLink").click((e) => {
 					e.preventDefault();
 					$.ajax({
-						url: "components/loginForm.html",
+						url: "components/loginForm.php",
 						success: (result) => {
-							/*Set the content of the central div*/
-							$('#content').html(result);
-							/*Set the action to the submit button (Perform formSubmit)*/
-							$("#submit").click(() => { formSubmit("login"); });
-							/*Check if `remember me` is selected: if yes then set a cookie for the username*/
-							var username = getCookie("email");
-							var password = getCookie("password");
-							if (username != "")
-								$("#email").val(username);
-							if(password != "")
-								$("#password").val(password);
-							/*Register key enter pressed to perform the form submission*/
-							registerEnterForm("login");
+							var parsed = JSON.parse(result);
+							if(parsed.err == 0) {
+								/*Set the content of the central div*/
+								$('#content').html(parsed.content);
+								/*Set the action to the submit button (Perform formSubmit)*/
+								$("#submit").click(() => { formSubmit("login"); });
+								/*Check if `remember me` is selected: if yes then set a cookie for the username*/
+								var username = getCookie("email");
+								var password = getCookie("password");
+								if (username != "")
+									$("#email").val(username);
+								if(password != "")
+									$("#password").val(password);
+								/*Register key enter pressed to perform the form submission*/
+								registerEnterForm("login");
+							}	else {
+								showFailed(parsed.msg, false);
+							}
 						}
 					});
 				});
@@ -60,14 +65,19 @@ $(document).ready(() => {
 				$("#registerLink").click((e) => {
 					e.preventDefault();
 					$.ajax({
-						url: "components/registrationForm.html",
+						url: "components/registrationForm.php",
 						success: (result) => {
-							/*Set the content of the main div*/
-							$('#content').html(result);
-							/*Set the action to be performed when submit is clicked (formSubmit)*/
-							$("#submit").click(() => { formSubmit("register") });
-							/*Register the key enter pressed to perform form submission*/
-							registerEnterForm("register");
+							var parsed = JSON.parse(result);
+							if(parsed.err == 0) {
+								/*Set the content of the main div*/
+								$('#content').html(parsed.content);
+								/*Set the action to be performed when submit is clicked (formSubmit)*/
+								$("#submit").click(() => { formSubmit("register") });
+								/*Register the key enter pressed to perform form submission*/
+								registerEnterForm("register");
+							} else {
+								showFailed(parsed.msg, false);	
+							}
 						}
 					});
 				});
@@ -129,10 +139,9 @@ $(document).ready(() => {
 									$("#" + e.target.id).removeClass("available reserved").addClass("myreserved");
 								else if (parsed.err == 1)
 									$("#" + e.target.id).removeClass("myreserved reserved").addClass("available");
-								else if (parsed.err == 2)
+								else
 									$("#" + e.target.id).removeClass("available reserved").addClass("unavailable");
 								if (parsed.err >= 0) showSuccess(parsed.msg, false);
-								else if(parsed.err === -100) showFailed(parsed.msg, true);
 								else showFailed(parsed.msg, false);
 							}
 						});
