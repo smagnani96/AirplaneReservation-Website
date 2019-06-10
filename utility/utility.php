@@ -135,6 +135,7 @@ function purchaseSeat($email, $conn) {
 }
 
 function reserveSeat($username, $seat, $conn) {
+	$conn->autocommit(FALSE);
 	$alreadyPresent = false;
 	/*Check if thicket already bought, or delete old reservation*/
 	if ($stm = $conn->prepare("SELECT email, purchased FROM reservation WHERE seat = ? LIMIT 1 FOR UPDATE")) {
@@ -155,6 +156,7 @@ function reserveSeat($username, $seat, $conn) {
 						if ($stmd->affected_rows <= 0) {
 							return ErrorObject::DB_INTERNAL_ERROR;
 						} else {
+							$conn->commit();
 							return SuccessObject::SEAT_UNRESERVED;
 						}
 					} else {
@@ -172,7 +174,7 @@ function reserveSeat($username, $seat, $conn) {
 	$statement = $alreadyPresent ? "UPDATE reservation SET email = ? WHERE seat = ?" : "INSERT INTO reservation (email, seat, purchased) VALUES (?, ?, 0)";
 	/*Proceed reserving the seat*/
 	if ($insert_stmt = $conn->prepare($statement)) {
-		$insert_stmt->bind_param('ss', $_SESSION['username'], $_POST["id"]);
+		$insert_stmt->bind_param('ss', $username, $seat);
 		$insert_stmt->execute();
 		$insert_stmt->store_result();
 		if ($insert_stmt->affected_rows <= 0) {
@@ -182,6 +184,7 @@ function reserveSeat($username, $seat, $conn) {
 				return ErrorObject::DB_INTERNAL_ERROR;
 			}
 		} else {
+			$conn->commit();
 			return SuccessObject::SEAT_RESERVED;
 		}
 	} else {
