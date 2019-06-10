@@ -31,7 +31,7 @@ if (!isset($_POST['action']) || !in_array($_POST['action'], array('buy', 'reserv
 }
 
 $seat = $_POST['id'];
-$_POST['id'] = filter_var($seat, FILTER_VALIDATE_EMAIL);
+$_POST['id'] = filter_var($seat, FILTER_SANITIZE_STRING);
 
 if ($seat != $_POST['id']) {
 	echo json_encode(ErrorObject::CODE_INJECTION);
