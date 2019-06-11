@@ -1,6 +1,6 @@
 <?php
 
-$width = 6;
-$length = 10;
+define('AIRPLANE_WIDTH', 6);
+define('AIRPLANE_LENGTH', 10);
 
 ?>

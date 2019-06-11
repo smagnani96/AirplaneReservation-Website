@@ -24,10 +24,3 @@ create table reservation (
 	seat varchar(3) not null,
 	purchased int not null,
 	constraint IDReservation_composition primary key (seat));
-
--- Constraints Section
--- ___________________
-
-alter table reservation add constraint FKcomposition_reservation
-	foreign key (email)
-	references user (email);

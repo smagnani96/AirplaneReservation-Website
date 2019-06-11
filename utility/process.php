@@ -16,7 +16,7 @@ if (session_status() == PHP_SESSION_NONE) {
 
 /*Check if correct data*/
 if (!isset($_POST["action"]) || !in_array($_POST['action'], array('login', 'logout', 'register')) ||
-	($_POST['action'] != 'logout' && !isset($_POST['email'], $_POST['p']))) {
+	($_POST['action'] != 'logout' && !isset($_POST['email'], $_POST['p'])) || ($_POST['action'] == "login" && !isset($_POST['remember']))) {
 	echo json_encode(ErrorObject::MISSING_DATA);
 	return;
 }
@@ -53,13 +53,22 @@ if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z0-9]).*$/', $_POST['p'])) {
 
 /*Check if it's a login request*/
 if ($_POST["action"] == "login") {
-	echo json_encode(login($_POST['email'], $_POST['p'], $conn));
+	$ret = login($_POST['email'], $_POST['p'], $conn, $_POST['remember']);
+	if ($_POST['remember'] == 1 && $ret['msg'] == 0) {
+		setcookie("email", $email, time() + (86400 * 30), "/", "", true, true);
+		setcookie("password", $pass, time() + (86400 * 30), "/", "", true, true);
+	}
+	echo json_encode($ret);
 	return;
 }
 
 /*Check if it's a register request*/
 if ($_POST["action"] == "register") {
-	echo json_encode(register($_POST['email'], $_POST['p'], $conn));
+	$ret = register($_POST['email'], $_POST['p'], $conn);
+	if ($ret['err'] == 0) {
+		login($_POST['email'], $_POST['p'], $conn, 0);
+	}
+	echo json_encode($ret);
 	return;
 }
 

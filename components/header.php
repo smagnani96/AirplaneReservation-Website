@@ -1,5 +1,6 @@
 <img src="res/CryinairLogo.png" alt="Cryinair logo">
-<span>Cryinair</span>
+<div>
+	<span>Cryinair</span><br />
 
 <?php
 require_once "../utility/db.php";
@@ -9,7 +10,9 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 if (login_check($conn) === true) {
-	echo "<br/><p>Welcome back: " . $_SESSION["username"] . "</p>";
+	echo "<p>Welcome back: " . $_SESSION["username"] . "</p>";
 }
 
 ?>
+
+</div>

@@ -20,22 +20,24 @@ function sec_session_start() {
 	session_regenerate_id();
 }
 
-function login($email, $password, $conn) {
+function login($email, $password, $conn, $remember) {
 	if ($stmt = $conn->prepare("SELECT email, password, salt FROM user WHERE email = ? LIMIT 1")) {
 		$stmt->bind_param('s', $email);
 		$stmt->execute();
 		$stmt->store_result();
 		$stmt->bind_result($username, $db_password, $salt);
 		$stmt->fetch();
-//Salt the inserted password
+		//Salt the inserted password
 		$password = hash('sha512', $password . $salt);
-//Check if the user exists
+		//Check if the user exists
 		if ($stmt->num_rows == 1) {
-//Check for the hashed password to match the stored one
+			//Check for the hashed password to match the stored one
 			if ($db_password == $password) {
-//Correct password, set all session parameters
+				//Correct password, set all session parameters
 				$_SESSION['username'] = $username;
 				$_SESSION['timestamp'] = time();
+				//This variable will be set in the airplane.php file to avoid double queries
+				//$_SESSION['myreserved'] = retrieveUserReserved($username, $conn);
 				$_SESSION['login_string'] = hash('sha512', $password . $_SERVER['HTTP_USER_AGENT']);
 				return SuccessObject::LOGIN;
 			} else {
@@ -120,15 +122,43 @@ function register($email, $password, $conn) {
 }
 
 function purchaseSeat($email, $conn) {
-	if ($insert_stmt = $conn->prepare("UPDATE reservation SET purchased = 1 WHERE email = ?")) {
-		$insert_stmt->bind_param('s', $_SESSION['username']);
-		$insert_stmt->execute();
-		$insert_stmt->store_result();
-		if ($insert_stmt->affected_rows <= 0) {
-			return ErrorObject::SEAT_NOT_PRESENT;
+	$myReserved = retrieveUserReserved($email, $conn);
+	if (sizeof($myReserved) == sizeof($_SESSION['myreserved'])) {
+		if ($insert_stmt = $conn->prepare("UPDATE reservation SET purchased = 1 WHERE email = ?")) {
+			$insert_stmt->bind_param('s', $_SESSION['username']);
+			$insert_stmt->execute();
+			$insert_stmt->store_result();
+			if ($insert_stmt->affected_rows <= 0) {
+				return ErrorObject::SEAT_NOT_PRESENT;
+			} else {
+				$_SESSION['myreserved'] = [];
+				return SuccessObject::SEAT_PURCHASE;
+			}
 		} else {
-			return SuccessObject::SEAT_PURCHASE;
+			return ErrorObject::DB_INTERNAL_ERROR;
 		}
+	} else {
+		$_SESSION['myreserved'] = [];
+		if ($insert_stmt = $conn->prepare("DELETE FROM reservation WHERE email = ? AND purchased = 0")) {
+			$insert_stmt->bind_param('s', $email);
+			$insert_stmt->execute();
+			return ErrorObject::SEAT_CHANGED;
+		} else {
+			return ErrorObject::DB_INTERNAL_ERROR;
+		}
+	}
+}
+
+function retrieveUserReserved($email, $conn) {
+	if ($insert_stmt = $conn->prepare("SELECT seat FROM reservation WHERE email = ? AND purchased = 0")) {
+		$insert_stmt->bind_param('s', $email);
+		$insert_stmt->execute();
+		$insert_stmt->bind_result($seat);
+		$seats = [];
+		while ($insert_stmt->fetch()) {
+			array_push($seats, $seat);
+		}
+		return $seats;
 	} else {
 		return ErrorObject::DB_INTERNAL_ERROR;
 	}
@@ -157,6 +187,10 @@ function reserveSeat($username, $seat, $conn) {
 							return ErrorObject::DB_INTERNAL_ERROR;
 						} else {
 							$conn->commit();
+							$index = array_search($seat, $_SESSION['myreserved']);
+							if ($index !== FALSE) {
+								unset($_SESSION['myreserved'][$index]);
+							}
 							return SuccessObject::SEAT_UNRESERVED;
 						}
 					} else {
@@ -164,6 +198,10 @@ function reserveSeat($username, $seat, $conn) {
 					}
 				}
 			} else {
+				$index = array_search($_SESSION['myreserved'], $seat);
+				if ($index !== FALSE) {
+					unset($_SESSION['myreserved'][$index]);
+				}
 				return ErrorObject::SEAT_ALREADY_SOLD;
 			}
 		}
@@ -179,12 +217,17 @@ function reserveSeat($username, $seat, $conn) {
 		$insert_stmt->store_result();
 		if ($insert_stmt->affected_rows <= 0) {
 			if (mysqli_errno($conn) == 1062) {
+				$index = array_search($_SESSION['myreserved'], $seat);
+				if ($index !== FALSE) {
+					unset($_SESSION['myreserved'][$index]);
+				}
 				return ErrorObject::SEAT_ALREADY_SOLD;
 			} else {
 				return ErrorObject::DB_INTERNAL_ERROR;
 			}
 		} else {
 			$conn->commit();
+			array_push($_SESSION['myreserved'], $seat);
 			return SuccessObject::SEAT_RESERVED;
 		}
 	} else {
@@ -205,14 +248,15 @@ abstract class ErrorObject {
 	const CODE_INJECTION = array('err' => -1, 'msg' => "It seems that you tried to inject some code.");
 	const HTTPS_ENFORCE = array('err' => -1, 'msg' => "To perform that operation you must access through HTTPS.");
 	const SEAT_OUT_DOMAIN = array('err' => -1, 'msg' => "The requested seat seems not to exist.");
-	const SEAT_NOT_PRESENT = array('err' => -1, 'msg' => "To perform that action you need to reserve at least 1 seat.");
+	const SEAT_NOT_PRESENT = array('err' => -2, 'msg' => "To perform that action you need to reserve at least 1 seat.");
 	const SEAT_ALREADY_SOLD = array('err' => -1, 'msg' => "The seat has already been purchased.");
+	const SEAT_CHANGED = array('err' => -1, 'msg' => "Purchase failed because one of your seats has been reserved in the mean while.");
 }
 
 abstract class SuccessObject {
 	const LOGIN = array('err' => 0, 'msg' => "Successfully logged.");
 	const LOGOUT = array('err' => 0, 'msg' => "Successfully logged.");
-	const REGISTERED = array('err' => 0, 'msg' => "Successfully Registered, now you can login.");
+	const REGISTERED = array('err' => 0, 'msg' => "Successfully Registered.");
 	const SEAT_PURCHASE = array('err' => 0, 'msg' => "Purchase successfully completed.");
 	const SEAT_RESERVED = array('err' => 0, 'msg' => "Seat successfully reserved.");
 	const SEAT_UNRESERVED = array('err' => 1, 'msg' => "Seat successfully unreserved.");

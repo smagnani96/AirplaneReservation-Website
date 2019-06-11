@@ -34,13 +34,6 @@ $(document).ready(() => {
 								$('#content').html(parsed.content);
 								/*Set the action to the submit button (Perform formSubmit)*/
 								$("#submit").click(() => { formSubmit("login"); });
-								/*Check if `remember me` is selected: if yes then set a cookie for the username*/
-								var username = getCookie("email");
-								var password = getCookie("password");
-								if (username != "")
-									$("#email").val(username);
-								if(password != "")
-									$("#password").val(password);
 								/*Register key enter pressed to perform the form submission*/
 								registerEnterForm("login");
 							}	else {
@@ -97,12 +90,15 @@ $(document).ready(() => {
 						data: "action=buy",
 						success: (result) => {
 							var parsed = JSON.parse(result);
-							$('.myreserved').each(function () {
-								$(this).removeClass('myreserved clickable').addClass('unavailable').unbind();
-							});
-							if (parsed.err >= 0) showSuccess(parsed.msg, false);
-							else if(parsed.err == -100) showFailed(parsed.msg, true);
-							else showFailed(parsed.msg, false)
+							if (parsed.err == 0) {
+								showSuccess(parsed.msg, false);
+							} else if(parsed.err == -2){
+								showFailed(parsed.msg, false);
+								return;
+							} else {
+								showFailed(parsed.msg, false);
+							}
+							loadAirplane();
 						}
 					});
 				});
@@ -127,22 +123,25 @@ $(document).ready(() => {
 			success: (result) => {
 				$('#content').html(result);
 				$('.clickable').each(function() {
+					var id = $(this).attr('id');
 					$(this).click((e) => {
-						var dataString = "action=reserve&id=" + e.target.id;
+						var dataString = "action=reserve&id=" + id;
 						$.ajax({
 							type: "POST",
 							url: "utility/perform.php",
 							data: dataString,
 							success: (result) => {
 								var parsed = JSON.parse(result);
-								if (parsed.err == 0)
-									$("#" + e.target.id).removeClass("available reserved").addClass("myreserved");
-								else if (parsed.err == 1)
-									$("#" + e.target.id).removeClass("myreserved reserved").addClass("available");
-								else
-									$("#" + e.target.id).removeClass("available reserved").addClass("unavailable");
-								if (parsed.err >= 0) showSuccess(parsed.msg, false);
-								else showFailed(parsed.msg, false);
+								if (parsed.err == 0) {
+									$("#" + id).removeClass("available").addClass("myreserved");
+									showSuccess(parsed.msg, false);
+								} else if(parsed.err == 1){
+									$("#" + id).removeClass("myreserved").addClass("available");
+									showSuccess(parsed.msg, false);
+								} else {
+									$("#" + id).removeClass("available").addClass("unavailable");
+									showFailed(parsed.msg, false);
+								}
 							}
 						});
 					});
@@ -163,44 +162,20 @@ $(document).ready(() => {
 			return;
 		}
 
+		var remember = action == "login" && $("#remember").is(":checked")? 1 : 0;
 		$.ajax({
 			type: "POST",
 			url: "utility/process.php",
-			data: "action=" + action + "&email=" + $("#email").val() + "&p=" + $("#password").val(),
+			data: "action=" + action + "&email=" + $("#email").val() + "&p=" + $("#password").val() + "&remember=" + remember,
 			success: function(res) {
 				var parsed = JSON.parse(res);
 				if (parsed.err == 0) {
-					if (action == "login" && $("#remember").is(":checked")) {
-						setCookie("email", $("#email").val(), 2);
-						setCookie("password", $("#password").val(), 2);
-					}
 					showSuccess(parsed.msg, true);
 				} else {
 					showFailed(parsed.msg, false);
 				}
 			}
 		});
-	}
-
-	function getCookie(cname) {
-		var name = cname + "=";
-		var ca = document.cookie.split(';');
-		for (var i = 0; i < ca.length; i++) {
-			var c = ca[i];
-			while (c.charAt(0) == ' ') {
-				c = c.substring(1);
-			}
-			if (c.indexOf(name) == 0)
-				return c.substring(name.length, c.length);
-		}
-		return "";
-	}
-
-	function setCookie(cname, cvalue, exdays) {
-		var d = new Date();
-		d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-		var expires = "expires=" + d.toUTCString();
-		document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 	}
 
 	function registerEnterForm(type) {
@@ -222,7 +197,7 @@ $(document).ready(() => {
 			$("#box").css('visibility', 'hidden');
 			if(reload) 
 				location.reload();
-		}, 1500);
+		}, 1200);
 	}
 
 	function showFailed(msg, reload) {
@@ -233,7 +208,7 @@ $(document).ready(() => {
 			$("#box").css('visibility', 'hidden')
 			if(reload)
 				location.reload();
-		}, 2500);
+		}, 1200);
 	}
 
 });
