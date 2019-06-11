@@ -132,14 +132,15 @@ $(document).ready(() => {
 							data: dataString,
 							success: (result) => {
 								var parsed = JSON.parse(result);
+								var seat = $("#" + id);
 								if (parsed.err == 0) {
-									$("#" + id).removeClass("available").addClass("myreserved");
+									seat.removeClass("available").addClass("myreserved");
 									showSuccess(parsed.msg, false);
 								} else if(parsed.err == 1){
-									$("#" + id).removeClass("myreserved").addClass("available");
+									seat.removeClass("myreserved").addClass("available");
 									showSuccess(parsed.msg, false);
 								} else {
-									$("#" + id).removeClass("available").addClass("unavailable");
+									seat.removeClass("available").addClass("unavailable");
 									showFailed(parsed.msg, false);
 								}
 							}
@@ -179,8 +180,8 @@ $(document).ready(() => {
 	}
 
 	function registerEnterForm(type) {
-		var form = type == "login" ? "#login-form" : "#register-form";
-		$(form).keypress((e) => {
+		var form = type == "login" ? $("#login-form") : $("#register-form");
+		form.keypress((e) => {
 			if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
 				$("#submit").click();
 				return false;
@@ -190,22 +191,24 @@ $(document).ready(() => {
 	}
 
 	function showSuccess(msg, reload) {
-		$("#box").html(msg);
-		$("#box").removeClass('error').addClass('success');
-		$("#box").css('visibility', 'visible');
+		var box = $("#box");
+		box.html(msg);
+		box.removeClass('error').addClass('success');
+		box.css('visibility', 'visible');
 		setTimeout(function() {
-			$("#box").css('visibility', 'hidden');
+			box.css('visibility', 'hidden');
 			if(reload) 
 				location.reload();
-		}, 1200);
+		}, 1000);
 	}
 
 	function showFailed(msg, reload) {
-		$("#box").removeClass('success').addClass('error');
-		$("#box").html(msg);
-		$("#box").css('visibility', 'visible');
+		var box = $("#box");
+		box.removeClass('success').addClass('error');
+		box.html(msg);
+		box.css('visibility', 'visible');
 		setTimeout(function() {
-			$("#box").css('visibility', 'hidden')
+			box.css('visibility', 'hidden')
 			if(reload)
 				location.reload();
 		}, 1200);
