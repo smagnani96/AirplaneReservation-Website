@@ -125,7 +125,7 @@ function purchaseSeat($email, $conn) {
 	$myReserved = retrieveUserReserved($email, $conn);
 	if (sizeof($myReserved) == sizeof($_SESSION['myreserved'])) {
 		if ($insert_stmt = $conn->prepare("UPDATE reservation SET purchased = 1 WHERE email = ?")) {
-			$insert_stmt->bind_param('s', $_SESSION['username']);
+			$insert_stmt->bind_param('s', $email);
 			$insert_stmt->execute();
 			$insert_stmt->store_result();
 			if ($insert_stmt->affected_rows <= 0) {
@@ -198,7 +198,7 @@ function reserveSeat($username, $seat, $conn) {
 					}
 				}
 			} else {
-				$index = array_search($_SESSION['myreserved'], $seat);
+				$index = array_search($seat, $_SESSION['myreserved']);
 				if ($index !== FALSE) {
 					unset($_SESSION['myreserved'][$index]);
 				}
@@ -217,7 +217,7 @@ function reserveSeat($username, $seat, $conn) {
 		$insert_stmt->store_result();
 		if ($insert_stmt->affected_rows <= 0) {
 			if (mysqli_errno($conn) == 1062) {
-				$index = array_search($_SESSION['myreserved'], $seat);
+				$index = array_search($seat, $_SESSION['myreserved']);
 				if ($index !== FALSE) {
 					unset($_SESSION['myreserved'][$index]);
 				}
