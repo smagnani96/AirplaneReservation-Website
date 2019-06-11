@@ -17,19 +17,24 @@ header {
 }
 
 header p {
-	text-align: right;
-	margin: 0% 2% 1% 0%;
+	float: right;
+	margin: 0% 2% 0.5% 0%;
 	font-size: 1.2vw;
 }
 
 header img {
-	width: 10%;
+	width: 8%;
 	vertical-align: middle;
 }
 
 header span {
 	width: 80%;
 	font-size: 3.5vw;
+}
+
+header div {
+	width: 90%;
+	display: inline-block;
 }
 
 /* @@@@@@@@@@@@@@@@@@@@@@@@@@@ LATERAL BAR  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
@@ -62,48 +67,51 @@ footer {
 
 footer div {
 	display: inline-block;
-	vertical-align: middle;
-	margin: 1% 7% 0% 0%;
-	width: 20%;
-	font-size: 1vw;
+	margin: 1% 8% 1% 8%;
+	width: 15%;
+	font-size: 0.8vw;
 }
 
 footer div img {
 	width: 14%;
 }
 
-/* @@@@@@@@@@@@@@@@@@@@@@@@@@@ CONTENT  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/* @@@@@@@@@@@@@@@@@@@@@@@@@@@ MAIN CONTENT  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
 #content {
 	text-align: center;
-	width: 75%;
+	width: 90%;
 	float: right;
-	margin: 2% 0% 2% 0%;
+	margin: 2% 0% 5% 0%;
 }
 
 .statistic {
 	float: right;
-	width: 50%;
+	width: 30%;
 }
 
 .map {
-	width: 50%;
-	display: block;
+	width: 60%;
+	float: right;
 }
 
 .statistic,
 form div {
 	margin: 2% 0% 2% 0%;
 	text-align: center;
-	font-size: 1.2vw;
+	font-size: 1vw;
 	vertical-align: middle;
 }
 
 form {
 	width: 30%;
-	margin: auto;
+	margin: 2% auto;
 	border-style: solid;
 	border-width: medium;
+}
+
+form span {
+	font-size: 0.7vw;
 }
 
 form #submit {
@@ -111,11 +119,11 @@ form #submit {
 }
 
 #login-form {
-	margin-bottom: 11%;
+	margin-bottom: 8%;
 }
 
 #register-form {
-	margin-bottom: 16%;
+	margin-bottom: 6%;
 }
 
 .formname {
@@ -127,24 +135,35 @@ form label {
 	display: inline-block;
 }
 
+/* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ SEAT ATTRIBUTES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
 .seat {
+	display: inline-block;
 	border-style: solid;
-	border-width: medium;
-	margin-right: 1%;
+	border-width: thin;
+	margin: 0% 0.5% 0.5% 0%;
 	width: 5%;
 }
 
+.seat img {
+	width: 70%;
+}
+
+.seat span {
+	margin: 0 auto;
+	font-size: 0.8vw;
+}
+
 .clickable:hover {
-	width: 6%;
 	opacity: 0.5;
 }
 
 .available {
-	border-color: green;
+	background-color: #96ceb4;
 }
 
 .unavailable {
-	border-color: red;
+	background-color: #ff6f69;
 }
 
 .clickable:hover {
@@ -152,12 +171,14 @@ form label {
 }
 
 .reserved {
-	border-color: orange;
+	background-color: #f2ae72;
 }
 
 .myreserved {
-	border-color: yellow;
+	background-color: #ffeead;
 }
+
+/* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ PROGRESS BAR @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
 progress {
 	background-color: black;
@@ -168,50 +189,62 @@ progress::-webkit-progress-bar {
 }
 
 .ppurchased::-moz-progress-bar {
-	background: red;
+	background: #ff6f69;
 }
 
 .ppurchased::-webkit-progress-value {
-	background: red;
+	background: #ff6f69;
 }
 
 .pavailable::-moz-progress-bar {
-	background: green;
+	background: #96ceb4;
 }
 
 .pavailable::-webkit-progress-value {
-	background: green;
+	background: #96ceb4;
 }
 
 .preserved::-moz-progress-bar {
-	background: orange;
+	background: #f2ae72;
 }
 
 .preserved::-webkit-progress-value {
-	background: orange;
+	background: #f2ae72;
+}
+
+.pmyreserved::-moz-progress-bar {
+	background: #ffeead;
+}
+
+.pmyreserved::-webkit-progress-value {
+	background: #ffeead;
 }
 
 .ptotal::-moz-progress-bar {
-	background: blue;
+	background: #034f84;
 }
 
 .ptotal::-webkit-progress-value {
-	background: blue;
+	background: #034f84;
 }
 
+/* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MESSAGE BOX @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
+
 .success {
-	background-color: #B9FFAB;
+	background-color: #96ceb4;
 }
 
 .error {
-	background-color: #EBB1B1;
+	background-color: #ff6f69;
 }
 
 .error,
 .success {
-	line-height: 300%;
+	width: 50%;
+	line-height: 200%;
 	font-size: 1vw;
 	border-color: black;
 	color: black;
+	margin: 0 auto;
 	text-align: center;
 }
