@@ -13,6 +13,10 @@ $reservedSeats = [];
 $minereserved = [];
 
 $logged = login_check($conn);
+if ($logged === true) {
+	$minereserved = retrieveUserReserved($_SESSION['username'], $conn);
+	$_SESSION['myreserved'] = $minereserved;
+}
 
 if ($sql = $conn->prepare("SELECT email, seat, purchased from reservation")) {
 	$sql->execute();
@@ -21,9 +25,7 @@ if ($sql = $conn->prepare("SELECT email, seat, purchased from reservation")) {
 	while ($sql->fetch()) {
 		if ($ispurchase) {
 			array_push($purchasedSeats, $seat);
-		} else if ($logged === true && $email == $_SESSION["username"]) {
-			array_push($minereserved, $seat);
-		} else {
+		} else if (!in_array($minereserved, $seat)) {
 			array_push($reservedSeats, $seat);
 		}
 	}
@@ -32,40 +34,49 @@ if ($sql = $conn->prepare("SELECT email, seat, purchased from reservation")) {
 	return;
 }
 
-$total = $width * $length;
-$reserved = sizeof($reservedSeats) + sizeof($minereserved);
+$total = AIRPLANE_WIDTH * AIRPLANE_LENGTH;
+$myreserved = sizeof($minereserved);
+$reserved = sizeof($reservedSeats);
 $purchased = sizeof($purchasedSeats);
 $available = $total - $reserved - $purchased;
 
+$format = "%0" . strlen(("" . $total)) . "d";
+
 echo "<div class='statistic'>
 			<div>
-				<span>Total Seats: " . $total . "</span><br/>
-				<span>Available: " . $available . "</span><br/>
-				<span>Reserved: " . $reserved . "</span><br/>
-				<span>Unavailable: " . $purchased . "</span><br/>
+				<span>Total Seats: </span><br/>
+				<span>Available: </span><br/>
+				<span>Reserved: </span><br/>" .
+($logged === true ? "<span>Reserved by you: </span><br/>" : "") . "
+				<span>Unavailable: </span><br/>
 			</div>
 			<div>
-				<progress class='ptotal' value='$total' max='$total'></progress><br/>
-				<progress class='pavailable' value='$available' max='$total'></progress><br/>
-				<progress class='preserved' value='$reserved' max='$total'></progress><br/>
-				<progress class='ppurchased' value='$purchased' max='$total'></progress>
+				<progress class='ptotal' value='$total' max='$total'></progress><span>" . sprintf($format, $total) . "</span><br/>
+				<progress class='pavailable' value='$available' max='$total'></progress><span>" . sprintf($format, $available) . "</span><br/>
+				<progress class='preserved' value='$reserved' max='$total'></progress><span>" . sprintf($format, $reserved) . "</span><br/> " .
+($logged === true ? "<progress class='pmyreserved' value='$myreserved' max='$total'></progress><span>" . sprintf($format, $myreserved) . "</span><br/>" : "") . "
+				<progress class='ppurchased' value='$purchased' max='$total'></progress><span>" . sprintf($format, $purchased) . "</span>
 			</div>
 		</div>";
 
 echo "<div class='map'>";
-foreach (range('A', chr(ord('A') + $length - 1)) as $letter) {
-	foreach (range(1, $width) as $number) {
+foreach (range('A', chr(ord('A') + AIRPLANE_LENGTH - 1)) as $letter) {
+	foreach (range(1, AIRPLANE_WIDTH) as $number) {
 		$class;
-		if (in_array("" . $letter . $number, $purchasedSeats)) {
+		$seat = "" . $letter . $number;
+		if (in_array($seat, $purchasedSeats)) {
 			$class = "unavailable";
-		} else if (in_array("" . $letter . $number, $reservedSeats)) {
-			$class = $logged === true ? "clickable reserved" : "reserved";
-		} else if (in_array("" . $letter . $number, $minereserved)) {
+		} else if (in_array($seat, $minereserved)) {
 			$class = $logged === true ? "clickable myreserved" : "myreserved";
+		} else if (in_array($seat, $reservedSeats)) {
+			$class = $logged === true ? "clickable reserved" : "reserved";
 		} else {
 			$class = $logged === true ? "clickable available" : "available";
 		}
-		echo "<img src='res/Seat.png' alt='AirplaneSeat' id='" . $letter . $number . "' class='seat " . $class . "'>";
+		echo "<div id='$seat' class='seat $class'>
+					<span>$seat</span>
+					<img src=res/Seat.png alt=AirplaneSeat />
+				</div>";
 	}
 	echo "<br/>";
 }
