@@ -4,7 +4,7 @@ require_once '../utility/utility.php';
 if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVER_PORT'] != 443) {
 	echo json_encode(ErrorObject::HTTPS_ENFORCE);
 } else {
-	echo json_encode(array('err' => 0, 'content' => "
+	echo json_encode(array('err' => 0, 'msg' => "
     <!--Register Form-->
     <span class='formname'>Registration Form</span>
     <form name='register-form' id='register-form' method='post' autocomplete='on'>
@@ -24,7 +24,7 @@ if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVE
             <span>(Must correspond to the password inserted)</span><br/>
         </div>
         <input type='button' value='Register' id='submit' />
-    </form>"));
+    </form>", ));
 }
 
 ?>

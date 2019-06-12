@@ -8,7 +8,7 @@ if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVE
 		$email = $_COOKIE['email'];
 		$password = $_COOKIE['password'];
 	}
-	echo json_encode(array('err' => 0, 'content' => "
+	echo json_encode(array('err' => 0, 'msg' => "
 		<!--Login Form-->
 		<span class='formname'>Login Form</span>
 		<form name='login-form' id='login-form' method='post' autocomplete='on'>
