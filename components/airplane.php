@@ -34,28 +34,33 @@ if ($sql = $conn->prepare("SELECT email, seat, purchased from reservation")) {
 
 $total = AIRPLANE_WIDTH * AIRPLANE_LENGTH;
 $myreserved = sizeof($minereserved);
-$reserved = sizeof($reservedSeats);
+$reserved = sizeof($reservedSeats) - sizeof($minereserved);
 $purchased = sizeof($purchasedSeats);
 $available = $total - $reserved - $purchased;
-
-$format = "%0" . strlen(("" . $total)) . "d";
 
 echo "<div class='statistic'>
 			<div>
 				<span>Total Seats: </span><br/>
 				<span>Available: </span><br/>
-				<span>Reserved: </span><br/>" .
-($logged === true ? "<span>Reserved by you: </span><br/>" : "") . "
 				<span>Unavailable: </span><br/>
+				<span>Reserved: </span><br/>" .
+	($logged === true ? "<span>Reserved by you: </span>" : "") . "
 			</div>
 			<div>
-				<progress class='ptotal' value='$total' max='$total'></progress><span>" . sprintf($format, $total) . "</span><br/>
-				<progress class='pavailable' value='$available' max='$total'></progress><span>" . sprintf($format, $available) . "</span><br/>
-				<progress class='preserved' value='$reserved' max='$total'></progress><span>" . sprintf($format, $reserved) . "</span><br/> " .
-($logged === true ? "<progress class='pmyreserved' value='$myreserved' max='$total'></progress><span>" . sprintf($format, $myreserved) . "</span><br/>" : "") . "
-				<progress class='ppurchased' value='$purchased' max='$total'></progress><span>" . sprintf($format, $purchased) . "</span>
+				<span id='total'>$total</span><br/>
+				<span id='available'>$available</span><br/>
+				<span id='purchased'>$purchased</span><br/>
+				<span id='reserved'>$reserved</span><br/>" .
+	($logged === true ? "<span id='myreserved'>$myreserved</span>" : "") . "
 			</div>
-		</div>";
+			<div>
+				<div class='color-box total'>.</div><br/>
+				<div class='color-box available'>...</div><br/>
+				<div class='color-box unavailable'>...</div><br/>
+				<div class='color-box reserved'>...</div><br/>" .
+	($logged === true ? "<div class='color-box myreserved'>...</div>" : "") . "
+			</div>
+			</div>";
 
 echo "<div class='map'>";
 foreach (range('A', chr(ord('A') + AIRPLANE_LENGTH - 1)) as $letter) {
