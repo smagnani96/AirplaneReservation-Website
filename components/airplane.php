@@ -4,9 +4,7 @@ require_once "../utility/db.php";
 require_once "../utility/utility.php";
 require_once "../utility/airconf.php";
 
-if (session_status() == PHP_SESSION_NONE) {
-	sec_session_start();
-}
+sec_session_start();
 
 $purchasedSeats = [];
 $reservedSeats = [];

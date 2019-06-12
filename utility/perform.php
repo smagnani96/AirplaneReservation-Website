@@ -4,14 +4,11 @@ require_once "db.php";
 require_once "utility.php";
 require_once "airconf.php";
 
+sec_session_start();
+
 if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVER_PORT'] != 443) {
 	echo json_encode(ErrorObject::HTTPS_ENFORCE);
 	return;
-}
-
-/*Start a new secure session if not present*/
-if (session_status() == PHP_SESSION_NONE) {
-	sec_session_start();
 }
 
 /*Check if the user is logged*/

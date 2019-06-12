@@ -1,20 +1,14 @@
 <?php
 
 function sec_session_start() {
-//Set a session name
-	$session_name = 'sec_session_id';
-//True if you want to ENFORCE https
-	$secure = true;
-//True if you want to avoid JS to access the session ID
-	$httponly = true;
 //Force session only to use cookies
 	ini_set('session.use_only_cookies', 1);
 //Read current cookie params
 	$cookieParams = session_get_cookie_params();
 //Set cookie params
-	session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"], $secure, $httponly);
+	session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"], true, true);
 //Set session name to the chosen one
-	session_name($session_name);
+	session_name('sec_session_id');
 	session_start();
 //Regenerate session id for security
 	session_regenerate_id();
@@ -36,8 +30,6 @@ function login($email, $password, $conn, $remember) {
 				//Correct password, set all session parameters
 				$_SESSION['username'] = $username;
 				$_SESSION['timestamp'] = time();
-				//This variable will be set in the airplane.php file to avoid double queries
-				//$_SESSION['myreserved'] = retrieveUserReserved($username, $conn);
 				$_SESSION['login_string'] = hash('sha512', $password . $_SERVER['HTTP_USER_AGENT']);
 				return SuccessObject::LOGIN;
 			} else {
@@ -240,6 +232,7 @@ abstract class ErrorObject {
 	const EXPIRED_SESSION = array('err' => -1, 'msg' => "Your session has expired, please login again.");
 	const MISSING_RECORD = array('err' => -1, 'msg' => "It does not seem to exist, please retry.");
 	const LOGIN_CHECK_FAIL = array('err' => -1, 'msg' => "Something has appened in your login session.");
+	const LOGIN_REQUIRED = array('err' => -1, 'msg' => "To perform that action you need to be logged.");
 	const PASSWORD_WRONG = array('err' => -1, 'msg' => "Password wrong, please try again.");
 	const PASSWORD_NOT_COMPLIANT = array('err' => -1, 'msg' => "Password not compliant.");
 	const EMAIL_NOT_COMPLIANT = array('err' => -1, 'msg' => "Email not compliant.");
