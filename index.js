@@ -9,7 +9,10 @@ $(document).ready(() => {
 		$.ajax({
 			url: "components/header.php",
 			success: (result) => {
-				$('#myHeader').html(result);
+				var parsed = JSON.parse(result);
+				if(parsed.err == 0) {
+					$('#myHeader').html(parsed.msg);
+				}
 			}
 		});
 
@@ -18,7 +21,10 @@ $(document).ready(() => {
 			url: "components/navbar.php",
 			success: (result) => {
 				/*Set the content of the navbar*/
-				$('#myNavbar').html(result);
+				var parsed = JSON.parse(result);
+				if(parsed.err == 0) {
+					$('#myNavbar').html(parsed.msg);
+				}
 
 				/*Assign action to the login link (Load the login form)*/
 				$("#loginLink").click((e) => {
@@ -29,7 +35,7 @@ $(document).ready(() => {
 							var parsed = JSON.parse(result);
 							if(parsed.err == 0) {
 								/*Set the content of the central div*/
-								$('#content').html(parsed.content);
+								$('#content').html(parsed.msg);
 								/*Set the action to the submit button (Perform formSubmit)*/
 								$("#submit").click(() => { 
 									e.preventDefault();
@@ -67,7 +73,7 @@ $(document).ready(() => {
 							var parsed = JSON.parse(result);
 							if(parsed.err == 0) {
 								/*Set the content of the main div*/
-								$('#content').html(parsed.content);
+								$('#content').html(parsed.msg);
 								/*Set the action to be performed when submit is clicked (formSubmit)*/
 								$("#submit").click(() => { 
 									e.preventDefault();
@@ -121,8 +127,10 @@ $(document).ready(() => {
 		$.ajax({
 			url: "components/airplane.php",
 			success: (result) => {
-				$('#content').html(result);
-				$('.clickable').each(function() {
+				var parsed = JSON.parse(result);
+				if(parsed.err == 0) {
+					$('#content').html(parsed.msg);
+					$('.clickable').each(function() {
 					var id = $(this).attr('id');
 					$(this).click((e) => {
 						e.preventDefault();
@@ -155,6 +163,9 @@ $(document).ready(() => {
 						});
 					});
 				});
+				} else {
+					showResult(parsed.err, parsed.msg, false);
+				}
 			}
 		});
 	}
