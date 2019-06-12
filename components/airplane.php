@@ -84,4 +84,5 @@ foreach (range('A', chr(ord('A') + AIRPLANE_LENGTH - 1)) as $letter) {
 	echo "<br/>";
 }
 echo "</div>";
+
 ?>
