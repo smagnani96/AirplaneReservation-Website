@@ -39,7 +39,7 @@ header div {
 
 /* @@@@@@@@@@@@@@@@@@@@@@@@@@@ LATERAL BAR  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
-aside {
+nav {
 	width: 10%;
 	margin: 10% 0% 10% 0%;
 	text-align: left;
@@ -47,33 +47,12 @@ aside {
 	background-color: #66757F;
 }
 
-aside a {
+nav a {
 	line-height: 200%;
 	display: block;
 	font-size: 1.3vw;
 	text-decoration: none;
 	color: white;
-}
-
-/* @@@@@@@@@@@@@@@@@@@@@@@@@@@ FOOTER @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-
-footer {
-	width: 100%;
-	clear: both;
-	text-align: center;
-	background-color: #292F33;
-	color: white;
-}
-
-footer div {
-	display: inline-block;
-	margin: 1% 8% 1% 8%;
-	width: 15%;
-	font-size: 0.8vw;
-}
-
-footer div img {
-	width: 14%;
 }
 
 /* @@@@@@@@@@@@@@@@@@@@@@@@@@@ MAIN CONTENT  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
@@ -82,12 +61,16 @@ footer div img {
 	text-align: center;
 	width: 90%;
 	float: right;
-	margin: 2% 0% 5% 0%;
+	margin: 2% 0% 0% 0%;
 }
 
 .statistic {
 	float: right;
 	width: 30%;
+}
+
+.statistic div {
+	text-align: right;
 }
 
 .map {
@@ -97,7 +80,7 @@ footer div img {
 
 .statistic,
 form div {
-	margin: 2% 0% 2% 0%;
+	margin: 2% 0% 0% 0%;
 	text-align: center;
 	font-size: 1vw;
 	vertical-align: middle;
@@ -116,14 +99,6 @@ form span {
 
 form #submit {
 	margin-bottom: 5%;
-}
-
-#login-form {
-	margin-bottom: 8%;
-}
-
-#register-form {
-	margin-bottom: 6%;
 }
 
 .formname {
@@ -178,54 +153,8 @@ form label {
 	background-color: #ffeead;
 }
 
-/* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ PROGRESS BAR @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-
-progress {
-	background-color: black;
-}
-
-progress::-webkit-progress-bar {
-	background: black;
-}
-
-.ppurchased::-moz-progress-bar {
-	background: #ff6f69;
-}
-
-.ppurchased::-webkit-progress-value {
-	background: #ff6f69;
-}
-
-.pavailable::-moz-progress-bar {
-	background: #96ceb4;
-}
-
-.pavailable::-webkit-progress-value {
-	background: #96ceb4;
-}
-
-.preserved::-moz-progress-bar {
-	background: #f2ae72;
-}
-
-.preserved::-webkit-progress-value {
-	background: #f2ae72;
-}
-
-.pmyreserved::-moz-progress-bar {
-	background: #ffeead;
-}
-
-.pmyreserved::-webkit-progress-value {
-	background: #ffeead;
-}
-
-.ptotal::-moz-progress-bar {
-	background: #034f84;
-}
-
-.ptotal::-webkit-progress-value {
-	background: #034f84;
+.color-box {
+	color: transparent;
 }
 
 /* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MESSAGE BOX @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
