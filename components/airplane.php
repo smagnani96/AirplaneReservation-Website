@@ -38,9 +38,7 @@ $reserved = sizeof($reservedSeats) - sizeof($minereserved);
 $purchased = sizeof($purchasedSeats);
 $available = $total - $reserved - $purchased;
 
-$airplane = "";
-
-$airplane .= "<div class='statistic'>
+$airplane = "<div class='statistic'>
 			<div>
 				<span>Total Seats: </span><br/>
 				<span>Available: </span><br/>
@@ -65,9 +63,9 @@ $airplane .= "<div class='statistic'>
 			</div>";
 
 $airplane .= "<div class='map'>";
-foreach (range('A', chr(ord('A') + AIRPLANE_LENGTH - 1)) as $letter) {
-	foreach (range(1, AIRPLANE_WIDTH) as $number) {
-		$class;
+foreach (range(1, AIRPLANE_LENGTH) as $number) {
+	foreach (range('A', chr(ord('A') + AIRPLANE_WIDTH - 1)) as $letter) {
+		$class = "";
 		$seat = "" . $letter . $number;
 		if (in_array($seat, $purchasedSeats)) {
 			$class = "unavailable";
@@ -79,9 +77,9 @@ foreach (range('A', chr(ord('A') + AIRPLANE_LENGTH - 1)) as $letter) {
 			$class = $logged === true ? "clickable available" : "available";
 		}
 		$airplane .= "<div id='$seat' class='seat $class'>
-					<span>$seat</span>
-					<img src=res/Seat.png alt=AirplaneSeat />
-				</div>";
+										<span>$seat</span>
+										<img src=res/Seat.png alt=AirplaneSeat />
+									</div>";
 	}
 	$airplane .= "<br/>";
 }

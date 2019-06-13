@@ -1,6 +1,7 @@
 <?php
 
-require_once '../utility/utility.php';
+require_once "../utility/utility.php";
+
 if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVER_PORT'] != 443) {
 	echo json_encode(ErrorObject::HTTPS_ENFORCE);
 } else {

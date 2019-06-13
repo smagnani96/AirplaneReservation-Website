@@ -97,7 +97,7 @@ $(document).ready(() => {
 				/*Assign action to the buy link (Perform buy action)*/
 				$("#buyLink").click((e) => {
 					e.preventDefault();
-					if($(".myreserved").length > 0) {
+					if($(".myreserved").length > 1) {
 						$.ajax({
 						type: "POST",
 						url: "utility/perform.php",
@@ -130,49 +130,52 @@ $(document).ready(() => {
 				var parsed = JSON.parse(result);
 				if(parsed.err == 0) {
 					$('#content').html(parsed.msg);
-					$('.clickable').each(function() {
-					var id = $(this).attr('id');
-					$(this).click((e) => {
-						e.preventDefault();
-						var dataString = "action=reserve&id=" + id;
-						$.ajax({
-							type: "POST",
-							url: "utility/perform.php",
-							data: dataString,
-							success: (result) => {
-								var parsed = JSON.parse(result);
-								var seat = $("#" + id);
-								var avail = $("#available");
-								var unavail = $("#purchased");
-								var myres = $("#myreserved");
-								var res = $("#reserved");
-								if (parsed.err == 0) {
-									seat.removeClass("available").addClass("myreserved");
-									myres.html(parseInt(myres.html()) + 1);
-									if(seat.hasClass("reserved")) {
-										seat.removeClass("reserved");
-										res.html(parseInt(res.html()) - 1);
-									} else {
-										avail.html(parseInt(avail.html()) - 1);
-									}
-								} else if(parsed.err == 1){
-									seat.removeClass("myreserved").addClass("available");
-									avail.html(parseInt(avail.html()) + 1);
-									myres.html(parseInt(myres.html()) - 1);
-								} else {
-									seat.removeClass("available").addClass("unavailable");
-									avail.html(parseInt(avail.html()) - 1);
-									unavail.html(parseInt(unavail.html()) + 1);
-								}
-								showResult(parsed.err, parsed.msg, false);
-							}
-						});
-					});
-				});
+					seatsRegisterClick();
 				} else {
 					showResult(parsed.err, parsed.msg, false);
 				}
 			}
+		});
+	}
+
+	function seatsRegisterClick() {
+		var avail = $("#available");
+		var unavail = $("#purchased");
+		var myres = $("#myreserved");
+		var res = $("#reserved");
+		$('.clickable').each(function() {
+			var id = $(this).attr('id');
+			$(this).click((e) => {
+				e.preventDefault();
+				$.ajax({
+					type: "POST",
+					url: "utility/perform.php",
+					data: "action=reserve&id=" + id,
+					success: (result) => {
+						var parsed = JSON.parse(result);
+						var seat = $("#" + id);
+						if (parsed.err == 0) {
+							seat.removeClass("available").addClass("myreserved");
+							myres.html(parseInt(myres.html()) + 1);
+							if(seat.hasClass("reserved")) {
+								seat.removeClass("reserved");
+								res.html(parseInt(res.html()) - 1);
+							} else {
+								avail.html(parseInt(avail.html()) - 1);
+							}
+						} else if(parsed.err == 1){
+							seat.removeClass("myreserved").addClass("available");
+							avail.html(parseInt(avail.html()) + 1);
+							myres.html(parseInt(myres.html()) - 1);
+						} else {
+							seat.removeClass("available").addClass("unavailable");
+							avail.html(parseInt(avail.html()) - 1);
+							unavail.html(parseInt(unavail.html()) + 1);
+						}
+						showResult(parsed.err, parsed.msg, false);
+					}
+				});
+			});
 		});
 	}
 

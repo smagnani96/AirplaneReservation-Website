@@ -52,7 +52,7 @@ function login_check($conn) {
 				$stmt->execute();
 				$stmt->store_result();
 				if ($stmt->num_rows == 1) {
-//If the user exists control if it's still the same
+					//If the user exists control if it's still the same
 					$stmt->bind_result($password);
 					$stmt->fetch();
 					$login_check = hash('sha512', $password . $_SERVER['HTTP_USER_AGENT']);
@@ -77,28 +77,28 @@ function login_check($conn) {
 }
 
 function logout() {
-///Take the session parameters
+	///Take the session parameters
 	$params = session_get_cookie_params();
-//Erase all session values
+	//Erase all session values
 	$_SESSION = array();
-//Set the session type cookie
+	//Set the session type cookie
 	setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
-//Finally destroy the session
+	//Finally destroy the session
 	session_destroy();
 	return SuccessObject::LOGOUT;
 }
 
 function register($email, $password, $conn) {
-//Create a random salt key
+	//Create a random salt key
 	$random_salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true));
-//Hash the password with the random salt
+	//Hash the password with the random salt
 	$password = hash('sha512', $password . $random_salt);
 	if ($insert_stmt = $conn->prepare("INSERT INTO user (email, password, salt) VALUES (?, ?, ?)")) {
-//Perform the query binding params
+		//Perform the query binding params
 		$insert_stmt->bind_param('sss', $email, $password, $random_salt);
 		$insert_stmt->execute();
 		$insert_stmt->store_result();
-//Check if the query went well or not
+		//Check if the query went well or not
 		if ($insert_stmt->affected_rows <= 0) {
 			if (mysqli_errno($conn) == 1062) {
 				return ErrorObject::RECORD_DUPLICATE;
@@ -142,50 +142,45 @@ function purchaseSeat($email, $conn) {
 }
 
 function retrieveUserReserved($email, $conn) {
+	$seats = [];
 	if ($insert_stmt = $conn->prepare("SELECT seat FROM reservation WHERE email = ? AND purchased = 0")) {
 		$insert_stmt->bind_param('s', $email);
 		$insert_stmt->execute();
 		$insert_stmt->bind_result($seat);
-		$seats = [];
 		while ($insert_stmt->fetch()) {
 			array_push($seats, $seat);
 		}
-		return $seats;
-	} else {
-		return ErrorObject::DB_INTERNAL_ERROR;
+
 	}
+	return $seats;
 }
 
 function reserveSeat($username, $seat, $conn) {
 	$conn->autocommit(FALSE);
-	$alreadyPresent = false;
-	$owner = "";
+	$query;
+	$isReserve = true;
 
 	/*Retrieve seat reservation infos from db if already present*/
 	if ($stm = $conn->prepare("SELECT email, purchased FROM reservation WHERE seat = ? LIMIT 1 FOR UPDATE")) {
 		$stm->bind_param("s", $seat);
 		$stm->execute();
-		$stm->bind_result($email, $ispurchased);
+		$stm->bind_result($seatEmail, $seatIsPurchased);
 		while ($stm->fetch()) {
-			$owner = $email;
-			if ($ispurchased == 1) {
+			if ($seatIsPurchased == 1) {
 				return ErrorObject::SEAT_ALREADY_SOLD;
-			} else if ($ispurchased == 0) {
-				$alreadyPresent = true;
 			}
 		}
 	} else {
 		return ErrorObject::DB_INTERNAL_ERROR;
 	}
 
-	$query;
-	$isunreserve = true;
 	//Correctly prepare query and session variable
 	if (in_array($seat, $_SESSION['myreserved'])) {
 		//UNRESERVE
+		$isReserve = false;
 		$index = array_search($seat, $_SESSION['myreserved']);
 		unset($_SESSION['myreserved'][$index]);
-		if ($alreadyPresent && $owner !== $username) {
+		if (!is_null($seatIsPurchased) && !is_null($seatEmail) && $seatEmail !== $username) {
 			return SuccessObject::SEAT_RERESERVED;
 		} else {
 			$query = "DELETE FROM reservation WHERE email = ? AND seat = ?";
@@ -193,12 +188,7 @@ function reserveSeat($username, $seat, $conn) {
 	} else {
 		//RESERVE
 		array_push($_SESSION['myreserved'], $seat);
-		$isunreserve = false;
-		if ($alreadyPresent) {
-			$query = "UPDATE reservation SET email = ? WHERE seat = ?";
-		} else {
-			$query = "INSERT INTO reservation VALUES (?, ?, 0)";
-		}
+		$query = !is_null($seatIsPurchased) ? "UPDATE reservation SET email = ? WHERE seat = ?" : "INSERT INTO reservation VALUES (?, ?, 0)";
 	}
 
 	//Perform query
@@ -210,7 +200,7 @@ function reserveSeat($username, $seat, $conn) {
 			return ErrorObject::DB_INTERNAL_ERROR;
 		} else {
 			$conn->commit();
-			return $isunreserve ? SuccessObject::SEAT_UNRESERVED : SuccessObject::SEAT_RESERVED;
+			return $isReserve ? SuccessObject::SEAT_RESERVED : SuccessObject::SEAT_UNRESERVED;
 		}
 	} else {
 		return ErrorObject::DB_INTERNAL_ERROR;

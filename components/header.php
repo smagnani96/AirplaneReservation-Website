@@ -1,4 +1,5 @@
 <?php
+
 require_once "../utility/db.php";
 require_once "../utility/utility.php";
 
