@@ -159,68 +159,58 @@ function retrieveUserReserved($email, $conn) {
 function reserveSeat($username, $seat, $conn) {
 	$conn->autocommit(FALSE);
 	$alreadyPresent = false;
-	/*Check if thicket already bought, or delete old reservation*/
+	$owner = "";
+
+	/*Retrieve seat reservation infos from db if already present*/
 	if ($stm = $conn->prepare("SELECT email, purchased FROM reservation WHERE seat = ? LIMIT 1 FOR UPDATE")) {
 		$stm->bind_param("s", $seat);
 		$stm->execute();
 		$stm->bind_result($email, $ispurchased);
-		$stm->fetch();
-		if (!is_null($ispurchased)) {
-			if (!$ispurchased) {
-				$alreadyPresent = true;
-				$isunreserved = $username == $email ? true : false;
-				$stm->fetch();
-				if ($isunreserved) {
-					if ($stmd = $conn->prepare("DELETE FROM reservation WHERE seat = ?")) {
-						$stmd->bind_param("s", $seat);
-						$stmd->execute();
-						$stmd->store_result();
-						if ($stmd->affected_rows <= 0) {
-							return ErrorObject::DB_INTERNAL_ERROR;
-						} else {
-							$conn->commit();
-							$index = array_search($seat, $_SESSION['myreserved']);
-							if ($index !== FALSE) {
-								unset($_SESSION['myreserved'][$index]);
-							}
-							return SuccessObject::SEAT_UNRESERVED;
-						}
-					} else {
-						return ErrorObject::DB_INTERNAL_ERROR;
-					}
-				}
-			} else {
-				$index = array_search($seat, $_SESSION['myreserved']);
-				if ($index !== FALSE) {
-					unset($_SESSION['myreserved'][$index]);
-				}
+		while ($stm->fetch()) {
+			$owner = $email;
+			if ($ispurchased == 1) {
 				return ErrorObject::SEAT_ALREADY_SOLD;
+			} else if ($ispurchased == 0) {
+				$alreadyPresent = true;
 			}
 		}
 	} else {
 		return ErrorObject::DB_INTERNAL_ERROR;
 	}
 
-	$statement = $alreadyPresent ? "UPDATE reservation SET email = ? WHERE seat = ?" : "INSERT INTO reservation (email, seat, purchased) VALUES (?, ?, 0)";
-	/*Proceed reserving the seat*/
-	if ($insert_stmt = $conn->prepare($statement)) {
-		$insert_stmt->bind_param('ss', $username, $seat);
-		$insert_stmt->execute();
-		$insert_stmt->store_result();
-		if ($insert_stmt->affected_rows <= 0) {
-			if (mysqli_errno($conn) == 1062) {
-				$index = array_search($seat, $_SESSION['myreserved']);
-				if ($index !== FALSE) {
-					unset($_SESSION['myreserved'][$index]);
-				}
-				return ErrorObject::SEAT_ALREADY_SOLD;
-			} else {
-				return ErrorObject::DB_INTERNAL_ERROR;
-			}
+	$query;
+	$isunreserve = true;
+	//Correctly prepare query and session variable
+	if (in_array($seat, $_SESSION['myreserved'])) {
+		//UNRESERVE
+		$index = array_search($seat, $_SESSION['myreserved']);
+		unset($_SESSION['myreserved'][$index]);
+		if ($alreadyPresent && $owner !== $username) {
+			return SuccessObject::SEAT_RERESERVED;
+		} else {
+			$query = "DELETE FROM reservation WHERE email = ? AND seat = ?";
+		}
+	} else {
+		//RESERVE
+		array_push($_SESSION['myreserved'], $seat);
+		$isunreserve = false;
+		if ($alreadyPresent) {
+			$query = "UPDATE reservation SET email = ? WHERE seat = ?";
+		} else {
+			$query = "INSERT INTO reservation VALUES (?, ?, 0)";
+		}
+	}
+
+	//Perform query
+	if ($stm2 = $conn->prepare($query)) {
+		$stm2->bind_param('ss', $username, $seat);
+		$stm2->execute();
+		$stm2->store_result();
+		if ($stm2->affected_rows <= 0) {
+			return ErrorObject::DB_INTERNAL_ERROR;
 		} else {
 			$conn->commit();
-			array_push($_SESSION['myreserved'], $seat);
-			return SuccessObject::SEAT_RESERVED;
+			return $isunreserve ? SuccessObject::SEAT_UNRESERVED : SuccessObject::SEAT_RESERVED;
 		}
 	} else {
 		return ErrorObject::DB_INTERNAL_ERROR;
@@ -251,6 +241,7 @@ abstract class SuccessObject {
 	const LOGOUT = array('err' => 0, 'msg' => "Successfully logged.");
 	const REGISTERED = array('err' => 0, 'msg' => "Successfully Registered.");
 	const SEAT_PURCHASE = array('err' => 0, 'msg' => "Purchase successfully completed.");
+	const SEAT_RERESERVED = array('err' => 1, 'msg' => "Seat unreserved, but reserved by someone else.");
 	const SEAT_RESERVED = array('err' => 0, 'msg' => "Seat successfully reserved.");
 	const SEAT_UNRESERVED = array('err' => 1, 'msg' => "Seat successfully unreserved.");
 }
