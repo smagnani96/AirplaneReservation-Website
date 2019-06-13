@@ -6,10 +6,10 @@ sec_session_start();
 
 $header = "<img src='res/CryinairLogo.png' alt='Cryinair logo'>
 					<div>
-					<span>Cryinair</span><br/>";
+						<span>Cryinair</span><br/>";
 
 if (login_check($conn) === true) {
-	$header -= "<p>Welcome back: " . $_SESSION['username'] . "</p>";
+	$header .= "<p>Welcome back: " . $_SESSION['username'] . "</p>";
 }
 
 $header .= "</div>";
