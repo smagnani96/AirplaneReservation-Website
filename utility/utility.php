@@ -14,7 +14,13 @@ function sec_session_start() {
 	session_regenerate_id();
 }
 
-function login($email, $password, $conn, $remember) {
+/**
+ * @param $email
+ * @param $password
+ * @param mysqli $conn
+ * @return array
+ */
+function login($email, $password, $conn) {
 	if ($stmt = $conn->prepare("SELECT email, password, salt FROM user WHERE email = ? LIMIT 1")) {
 		$stmt->bind_param('s', $email);
 		$stmt->execute();
@@ -43,6 +49,10 @@ function login($email, $password, $conn, $remember) {
 	}
 }
 
+/**
+ * @param mysqli $conn
+ * @return array|bool
+ */
 function login_check($conn) {
 //Check that all session variables are correctly set
 	if (isset($_SESSION['username'], $_SESSION['login_string'], $_SESSION['timestamp'])) {
@@ -88,6 +98,12 @@ function logout() {
 	return SuccessObject::LOGOUT;
 }
 
+/**
+ * @param $email
+ * @param $password
+ * @param mysqli $conn
+ * @return array
+ */
 function register($email, $password, $conn) {
 	//Create a random salt key
 	$random_salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true));
@@ -113,6 +129,11 @@ function register($email, $password, $conn) {
 	}
 }
 
+/**
+ * @param $email
+ * @param mysqli $conn
+ * @return array
+ */
 function purchaseSeat($email, $conn) {
 	$myReserved = retrieveUserReserved($email, $conn);
 	if (sizeof($myReserved) == sizeof($_SESSION['myreserved'])) {
@@ -141,6 +162,11 @@ function purchaseSeat($email, $conn) {
 	}
 }
 
+/**
+ * @param $email
+ * @param mysqli $conn
+ * @return array
+ */
 function retrieveUserReserved($email, $conn) {
 	$seats = [];
 	if ($insert_stmt = $conn->prepare("SELECT seat FROM reservation WHERE email = ? AND purchased = 0")) {
@@ -155,9 +181,14 @@ function retrieveUserReserved($email, $conn) {
 	return $seats;
 }
 
+/**
+ * @param $username
+ * @param $seat
+ * @param mysqli $conn
+ * @return array
+ */
 function reserveSeat($username, $seat, $conn) {
 	$conn->autocommit(FALSE);
-	$query;
 	$isReserve = true;
 
 	/*Retrieve seat reservation infos from db if already present*/
@@ -227,8 +258,8 @@ abstract class ErrorObject {
 }
 
 abstract class SuccessObject {
-	const LOGIN = array('err' => 0, 'msg' => "Successfully logged.");
-	const LOGOUT = array('err' => 0, 'msg' => "Successfully logged.");
+	const LOGIN = array('err' => 0, 'msg' => "Successfully logged in.");
+	const LOGOUT = array('err' => 0, 'msg' => "Successfully logged out.");
 	const REGISTERED = array('err' => 0, 'msg' => "Successfully Registered.");
 	const SEAT_PURCHASE = array('err' => 0, 'msg' => "Purchase successfully completed.");
 	const SEAT_RERESERVED = array('err' => 1, 'msg' => "Seat unreserved, but reserved by someone else.");
@@ -236,4 +267,3 @@ abstract class SuccessObject {
 	const SEAT_UNRESERVED = array('err' => 1, 'msg' => "Seat successfully unreserved.");
 }
 
-?>

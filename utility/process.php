@@ -50,7 +50,7 @@ if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z0-9]).*$/', $_POST['p'])) {
 
 /*Check if it's a login request*/
 if ($_POST["action"] == "login") {
-	$ret = login($_POST['email'], $_POST['p'], $conn, $_POST['remember']);
+	$ret = login($_POST['email'], $_POST['p'], $conn);
 	if ($_POST['remember'] == 1 && $ret['msg'] == 0) {
 		setcookie("email", $email, time() + (86400 * 30), "/", "", true, true);
 		setcookie("password", $pass, time() + (86400 * 30), "/", "", true, true);
@@ -63,10 +63,10 @@ if ($_POST["action"] == "login") {
 if ($_POST["action"] == "register") {
 	$ret = register($_POST['email'], $_POST['p'], $conn);
 	if ($ret['err'] == 0) {
-		login($_POST['email'], $_POST['p'], $conn, 0);
+		login($_POST['email'], $_POST['p'], $conn);
 	}
 	echo json_encode($ret);
 	return;
 }
 
-?>
+

@@ -3,8 +3,8 @@ function loadAirplane() {
 	$.ajax({
 		url: "components/airplane.php",
 		success: (result) => {
-			var parsed = JSON.parse(result);
-			if(parsed.err == 0) {
+			let parsed = JSON.parse(result);
+			if(parsed.err === 0) {
 				$('#content').html(parsed.msg);
 				seatsRegisterClick();
 			} else {
@@ -22,8 +22,8 @@ function navBarRegisterClick() {
 		$.ajax({
 			url: "components/loginForm.php",
 			success: (result) => {
-				var parsed = JSON.parse(result);
-				if(parsed.err == 0) {
+				let parsed = JSON.parse(result);
+				if(parsed.err === 0) {
 					//Set the content of the central div
 					$('#content').html(parsed.msg);
 					//Set the action to the submit button (Perform formSubmit)
@@ -48,7 +48,7 @@ function navBarRegisterClick() {
 			url: "utility/process.php",
 			data: "action=logout",
 			success: (result) => { 
-				var parsed = JSON.parse(result);
+				let parsed = JSON.parse(result);
 				showResult(parsed.err, parsed.msg, true);
 			}
 		});
@@ -60,8 +60,8 @@ function navBarRegisterClick() {
 		$.ajax({
 			url: "components/registrationForm.php",
 			success: (result) => {
-				var parsed = JSON.parse(result);
-				if(parsed.err == 0) {
+				let parsed = JSON.parse(result);
+				if(parsed.err === 0) {
 					//Set the content of the main div
 					$('#content').html(parsed.msg);
 					//Set the action to be performed when submit is clicked (formSubmit)
@@ -93,8 +93,8 @@ function navBarRegisterClick() {
 			url: "utility/perform.php",
 			data: "action=buy",
 			success: (result) => {
-				var parsed = JSON.parse(result);
-				if(parsed.err != -2) {
+				let parsed = JSON.parse(result);
+				if(parsed.err !== -2) {
 					//Buy sent since at least 1 seat => reload map
 					loadAirplane();
 				}
@@ -109,13 +109,13 @@ function navBarRegisterClick() {
 //Function to assign to each seat the action performed
 function seatsRegisterClick() {
 	//The object in the statistic map
-	var avail = $("#available");
-	var unavail = $("#purchased");
-	var myres = $("#myreserved");
-	var res = $("#reserved");
+	let avail = $("#available");
+	let unavail = $("#purchased");
+	let myres = $("#myreserved");
+	let res = $("#reserved");
 	//To each clickable assign the action
 	$('.clickable').each(function() {
-		var id = $(this).attr('id');
+		let id = $(this).attr('id');
 		//Perform the action to the server (Reserve/Unreserve)
 		$(this).click((e) => {
 			e.preventDefault();
@@ -124,10 +124,10 @@ function seatsRegisterClick() {
 				url: "utility/perform.php",
 				data: "action=reserve&id=" + id,
 				success: (result) => {
-					var parsed = JSON.parse(result);
-					var seat = $("#" + id);
+					let parsed = JSON.parse(result);
+					let seat = $("#" + id);
 					//Update correctly the statistic map
-					if (parsed.err == 0) {
+					if (parsed.err === 0) {
 						seat.removeClass("available").addClass("myreserved");
 						myres.html(parseInt(myres.html()) + 1);
 						if(seat.hasClass("reserved")) {
@@ -136,7 +136,7 @@ function seatsRegisterClick() {
 						} else {
 							avail.html(parseInt(avail.html()) - 1);
 						}
-					} else if(parsed.err == 1){
+					} else if(parsed.err === 1){
 						seat.removeClass("myreserved").addClass("available");
 						avail.html(parseInt(avail.html()) + 1);
 						myres.html(parseInt(myres.html()) - 1);
@@ -155,36 +155,37 @@ function seatsRegisterClick() {
 //Function assigned to the form's submit buttons
 function formSubmit(action) {
 	//Check for inputs validity
-	if ((action == "login" && !$("#login-form")[0].checkValidity()) ||
-		(action == "register" && !$("#register-form")[0].checkValidity())) {
+	if ((action === "login" && !$("#login-form")[0].checkValidity()) ||
+		(action === "register" && !$("#register-form")[0].checkValidity())) {
 		showResult(-1, "Non valid data, please fill it correctly.", false);
 		return;
 	}
-
+	let email = $("#email").val();
+	let password = $("#password").val();
 	//Check for password correspondance
-	if(action == "register" && $("#password").val() != $("#confirm-password").val()) {
+	if(action === "register" && password !== $("#confirm-password").val()) {
 		showResult(-1, "The two password must correspond.", false);
 		return;
 	}
 
 	//Perform server query
-	var remember = (action == "login" && $("#remember").is(":checked"))? 1 : 0;
+	let remember = (action === "login" && $("#remember").is(":checked"))? 1 : 0;
 	$.ajax({
 		type: "POST",
 		url: "utility/process.php",
-		data: "action=" + action + "&email=" + $("#email").val() + "&p=" + $("#password").val() + "&remember=" + remember,
+		data: "action=" + action + "&email=" + email + "&p=" + password + "&remember=" + remember,
 		success: function(res) {
-			var parsed = JSON.parse(res);
-			showResult(parsed.err, parsed.msg, parsed.err == 0? true : false);
+			let parsed = JSON.parse(res);
+			showResult(parsed.err, parsed.msg, parsed.err === 0);
 		}
 	});
 }
 
 //Function to register key enter to submit the form
 function registerEnterForm(type) {
-	var form = type == "login" ? $("#login-form") : $("#register-form");
+	let form = type === "login" ? $("#login-form") : $("#register-form");
 	form.keypress((e) => {
-		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+		if ((e.which && e.which === 13) || (e.keyCode && e.keyCode === 13)) {
 			$("#submit").click();
 		}
 	});
@@ -192,7 +193,7 @@ function registerEnterForm(type) {
 
 //Function to show in the div box the colored message and reload or not the page
 function showResult(err, msg, reload) {
-	var box = $("#box");
+	let box = $("#box");
 	box.html(msg);
 	if(err >= 0) {
 		box.removeClass('error').addClass('success');	

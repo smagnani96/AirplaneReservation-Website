@@ -31,4 +31,3 @@ if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVE
 	</form>"));
 }
 
-?>

@@ -18,7 +18,7 @@ header {
 
 header p {
 	float: right;
-	margin: 0% 2% 0.5% 0%;
+	margin: 0 2% 0.5% 0;
 	font-size: 1.2vw;
 }
 
@@ -41,7 +41,7 @@ header div {
 
 nav {
 	width: 8%;
-	margin: 10% 0% 10% 0%;
+	margin: 10% 0 10% 0;
 	text-align: left;
 	float: left;
 	background-color: #66757F;
@@ -61,7 +61,7 @@ nav a {
 	text-align: center;
 	width: 90%;
 	float: right;
-	margin: 2% 0% 0% 0%;
+	margin: 2% 0 0 0;
 }
 
 .statistic {
@@ -80,7 +80,7 @@ nav a {
 
 .statistic,
 form div {
-	margin: 2% 0% 0% 0%;
+	margin: 2% 0 0 0;
 	text-align: center;
 	font-size: 1vw;
 	vertical-align: middle;
@@ -98,7 +98,7 @@ form span, input {
 }
 
 form #submit {
-	margin: 2% 0% 5% 0%;
+	margin: 2% 0 5% 0;
 }
 
 .formname {
@@ -116,7 +116,7 @@ form label {
 	display: inline-block;
 	border-style: solid;
 	border-width: thin;
-	margin: 0% 0.5% 0.5% 0%;
+	margin: 0 0.5% 0.5% 0;
 	width: 5%;
 }
 

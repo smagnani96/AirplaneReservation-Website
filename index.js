@@ -10,7 +10,7 @@ $(document).ready(() => {
 			url: "components/header.php",
 			success: (result) => {
 				var parsed = JSON.parse(result);
-				if(parsed.err == 0) {
+				if(parsed.err === 0) {
 					$('#myHeader').html(parsed.msg);
 				} else {
 					showResult(parsed.err, parsed.msg, false);
@@ -24,7 +24,7 @@ $(document).ready(() => {
 			success: (result) => {
 				//Set the content of the navbar
 				var parsed = JSON.parse(result);
-				if(parsed.err == 0) {
+				if(parsed.err === 0) {
 					$('#myNavbar').html(parsed.msg);
 					navBarRegisterClick();
 				} else {

@@ -53,4 +53,3 @@ if ($_POST["action"] == "buy") {
 	return;
 }
 
-?>
