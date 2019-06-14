@@ -93,12 +93,12 @@ form {
 	border-width: medium;
 }
 
-form span {
+form span, input {
 	font-size: 0.7vw;
 }
 
 form #submit {
-	margin-bottom: 5%;
+	margin: 2% 0% 5% 0%;
 }
 
 .formname {
