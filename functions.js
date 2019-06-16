@@ -141,9 +141,14 @@ function seatsRegisterClick() {
 						avail.html(parseInt(avail.html()) + 1);
 						myres.html(parseInt(myres.html()) - 1);
 					} else {
-						seat.removeClass("available").addClass("unavailable");
-						avail.html(parseInt(avail.html()) - 1);
+						if(seat.hasClass("reserved")) {
+							res.html(parseInt(res.html()) - 1);
+						} else if(seat.hasClass("available")) {
+							avail.html(parseInt(avail.html()) - 1);
+						}
+						seat.removeClass("clickable available myreserved reserved").addClass("unavailable");
 						unavail.html(parseInt(unavail.html()) + 1);
+						seat.unbind();
 					}
 					showResult(parsed.err, parsed.msg, false);
 				}
