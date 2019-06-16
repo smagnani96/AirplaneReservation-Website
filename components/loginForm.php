@@ -30,4 +30,3 @@ if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVE
 			<input type='button' name='submit' value='Login' id='submit'/>
 	</form>"));
 }
-

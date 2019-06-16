@@ -84,9 +84,9 @@ form div {
 
 form {
 	width: 30%;
-	margin: 2% auto;
+	margin: 2% 30% auto;
 	border-style: solid;
-	border-width: medium;
+	border-width: thin;
 }
 
 form span, input {
@@ -98,6 +98,8 @@ form #submit {
 }
 
 .formname {
+	width: 30%;
+	margin: 0% 8% 0% 0%;
 	font-size: 2vw;
 }
 

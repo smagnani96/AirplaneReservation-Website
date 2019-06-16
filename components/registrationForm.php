@@ -25,5 +25,5 @@ if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVE
             <span>(Must correspond to the password inserted)</span><br/>
         </div>
         <input type='button' value='Register' id='submit' />
-    </form>", ));
+    </form>"));
 }
