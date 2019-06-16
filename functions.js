@@ -7,6 +7,7 @@ function loadAirplane() {
 			if(parsed.err === 0) {
 				$('#content').html(parsed.msg);
 				seatsRegisterClick();
+				updateStatistic();
 			} else {
 				showResult(parsed.err, parsed.msg, false);
 			}
@@ -108,11 +109,6 @@ function navBarRegisterClick() {
 
 //Function to assign to each seat the action performed
 function seatsRegisterClick() {
-	//The object in the statistic map
-	let avail = $("#available");
-	let unavail = $("#purchased");
-	let myres = $("#myreserved");
-	let res = $("#reserved");
 	//To each clickable assign the action
 	$('.clickable').each(function() {
 		let id = $(this).attr('id');
@@ -128,33 +124,28 @@ function seatsRegisterClick() {
 					let seat = $("#" + id);
 					//Update correctly the statistic map
 					if (parsed.err === 0) {
-						seat.removeClass("available").addClass("myreserved");
-						myres.html(parseInt(myres.html()) + 1);
-						if(seat.hasClass("reserved")) {
-							seat.removeClass("reserved");
-							res.html(parseInt(res.html()) - 1);
-						} else {
-							avail.html(parseInt(avail.html()) - 1);
-						}
+						seat.removeClass().addClass("seat myreserved clickable");
 					} else if(parsed.err === 1){
-						seat.removeClass("myreserved").addClass("available");
-						avail.html(parseInt(avail.html()) + 1);
-						myres.html(parseInt(myres.html()) - 1);
+						seat.removeClass().addClass("seat available clickable");
 					} else {
-						if(seat.hasClass("reserved")) {
-							res.html(parseInt(res.html()) - 1);
-						} else if(seat.hasClass("available")) {
-							avail.html(parseInt(avail.html()) - 1);
-						}
-						seat.removeClass("clickable available myreserved reserved").addClass("unavailable");
-						unavail.html(parseInt(unavail.html()) + 1);
+						seat.removeClass().addClass("seat unavailable");
 						seat.unbind();
 					}
+					updateStatistic();
 					showResult(parsed.err, parsed.msg, false);
 				}
 			});
 		});
 	});
+}
+
+function updateStatistic() {
+	//The object in the statistic map
+	$("#total").html($(".seat").length);
+	$("#available").html($(".available").length - 1);
+	$("#purchased").html($(".unavailable").length - 1);
+	$("#myreserved").html($(".myreserved").length - 1);
+	$("#reserved").html($(".reserved").length - 1);
 }
 
 //Function assigned to the form's submit buttons
