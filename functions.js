@@ -158,18 +158,24 @@ function formSubmit(action) {
 	}
 	let email = $("#email").val();
 	let password = $("#password").val();
+	let confirm = $("#confirm-password").val();
 	//Check for password correspondance
-	if(action === "register" && password !== $("#confirm-password").val()) {
+	if(action === "register" && password !== confirm) {
 		showResult(-1, "The two password must correspond.", false);
 		return;
 	}
 
-	//Perform server query
-	let remember = (action === "login" && $("#remember").is(":checked"))? 1 : 0;
+	let param = "";
+	if(action === "login") {
+		param = "&remember=" + ($("#remember").is(":checked")? 1 : 0);
+	} else if (action === "register") {
+		param = "&confirm=" + confirm;
+	}
+
 	$.ajax({
 		type: "POST",
 		url: "utility/process.php",
-		data: "action=" + action + "&email=" + email + "&p=" + password + "&remember=" + remember,
+		data: "action=" + action + "&email=" + email + "&p=" + password + param,
 		success: function(res) {
 			let parsed = JSON.parse(res);
 			showResult(parsed.err, parsed.msg, parsed.err === 0);

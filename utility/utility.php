@@ -246,6 +246,7 @@ abstract class ErrorObject {
 	const LOGIN_REQUIRED = array('err' => -1, 'msg' => "To perform that action you need to be logged.");
 	const PASSWORD_WRONG = array('err' => -1, 'msg' => "Password wrong, please try again.");
 	const PASSWORD_NOT_COMPLIANT = array('err' => -1, 'msg' => "Password not compliant.");
+    const PASSWORD_NOT_EQUAL = array('err' => -1, 'msg' => "The passwords must correspond.");
 	const EMAIL_NOT_COMPLIANT = array('err' => -1, 'msg' => "Email not compliant.");
 	const DB_INTERNAL_ERROR = array('err' => -1, 'msg' => "We experienced an internal error, please try again.");
 	const RECORD_DUPLICATE = array('err' => -1, 'msg' => "It seems already to exists.");

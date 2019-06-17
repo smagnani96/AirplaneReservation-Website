@@ -13,7 +13,8 @@ if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVE
 
 /*Check if correct data*/
 if (!isset($_POST["action"]) || !in_array($_POST['action'], array('login', 'logout', 'register')) ||
-	($_POST['action'] != 'logout' && !isset($_POST['email'], $_POST['p'])) || ($_POST['action'] == "login" && !isset($_POST['remember']))) {
+	($_POST['action'] != 'logout' && !isset($_POST['email'], $_POST['p'])) || ($_POST['action'] == "login" && !isset($_POST['remember'])) ||
+	($_POST['acton'] == 'register' && !isset($_POST['confirm']))) {
 	echo json_encode(ErrorObject::MISSING_DATA);
 	return;
 }
@@ -27,7 +28,7 @@ if ($_POST["action"] == "logout") {
 /*Sanitizing parameters*/
 $email = $_POST['email'];
 $pass = $_POST['p'];
-$_POST['email'] = filter_var($email, FILTER_VALIDATE_EMAIL);
+$_POST['email'] = filter_var($email, FILTER_SANITIZE_STRING);
 $_POST['p'] = filter_var($pass, FILTER_SANITIZE_STRING);
 
 /*Check if they had some code*/
@@ -61,6 +62,15 @@ if ($_POST["action"] == "login") {
 
 /*Check if it's a register request*/
 if ($_POST["action"] == "register") {
+	$confirm = $_POST['confirm'];
+	$_POST['confirm'] = filter_var($confirm, FILTER_SANITIZE_STRING);
+	if ($confirm != $_POST['confirm']) {
+		echo json_encode(ErrorObject::CODE_INJECTION);
+		return;
+	} else if ($_POST['confirm'] != $_POST['p']) {
+		echo json_encode(ErrorObject::PASSWORD_NOT_EQUAL);
+		return;
+	}
 	$ret = register($_POST['email'], $_POST['p'], $conn);
 	if ($ret['err'] == 0) {
 		login($_POST['email'], $_POST['p'], $conn);
@@ -68,5 +78,3 @@ if ($_POST["action"] == "register") {
 	echo json_encode($ret);
 	return;
 }
-
-
