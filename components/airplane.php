@@ -58,8 +58,8 @@ $airplane = "<div class='statistic'>
 $airplane .= "<div class='map'>";
 foreach (range(1, AIRPLANE_LENGTH) as $number) {
 	foreach (range('A', chr(ord('A') + AIRPLANE_WIDTH - 1)) as $letter) {
-		$class = "seat " . ($logged === true? "clickable " : "");
-		$seat = "" . $letter . $number;
+		$class = "seat " . ($logged === true ? "clickable " : "");
+		$seat = "" . $number . $letter;
 		if (in_array($seat, $purchasedSeats)) {
 			$class = "seat unavailable";
 		} else if (in_array($seat, $minereserved)) {
@@ -79,4 +79,3 @@ foreach (range(1, AIRPLANE_LENGTH) as $number) {
 $airplane .= "</div>";
 
 echo json_encode(array('err' => 0, 'msg' => $airplane));
-

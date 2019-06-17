@@ -38,8 +38,8 @@ if ($seat != $_POST['id']) {
 /*Check if the action is reserve and there's the id of the seat*/
 if ($_POST["action"] == "reserve") {
 	/*Check if the seat is correct in the domain*/
-	$maxseat = chr(ord('A') + AIRPLANE_LENGTH - 1) . strval(AIRPLANE_WIDTH);
-	if ($_POST["id"] < 'A0' || $_POST["id"] > $maxseat) {
+	$maxseat = strval(AIRPLANE_WIDTH) . chr(ord('A') + AIRPLANE_LENGTH - 1);
+	if ($_POST["id"] < '1A' || $_POST["id"] > $maxseat) {
 		echo json_encode(ErrorObject::SEAT_OUT_DOMAIN);
 	} else {
 		echo json_encode(reserveSeat($_SESSION['username'], $_POST['id'], $conn));
@@ -52,4 +52,3 @@ if ($_POST["action"] == "buy") {
 	echo json_encode(purchaseSeat($_SESSION['username'], $conn));
 	return;
 }
-
