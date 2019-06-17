@@ -15,13 +15,11 @@ if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVE
 		<form name='login-form' id='login-form' method='post' autocomplete='on'>
 			<div>
 				<label for='email'>Email</label><br/>
-				<input type='email' name='email' id='email' pattern='^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$' value='$email' placeholder='username1@gmail.com' required autocomplete='on'><br/>
-				<span>(Must be an email address)</span><br/>
+				<input title='Insert an email address' type='email' name='email' id='email' pattern='^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$' value='$email' placeholder='username1@gmail.com' required autocomplete='on'><br/>
 			</div>
 			<div>
 				<label for='password'>Password</label><br/>
-				<input type='password' name='password' id='password' pattern='^(?=.*[a-z])(?=.*[A-Z0-9]).*$' placeholder='****' value='$password' required autocomplete='off'><br/>
-				<span>(Must contain 1 lowcase character and 1 uppercase or a number)</span><br/>
+				<input title='The password must contain 1 lowcase character and 1 uppercase or a number' type='password' name='password' id='password' pattern='^(?=.*[a-z])(?=.*[A-Z0-9]).*$' placeholder='****' value='$password' required autocomplete='off'><br/>
 			</div>
 			<div>
 				<label for='remember'>Remember me</label>
