@@ -11,21 +11,21 @@ $(document).ready(() => {
 			success: (result) => {
 				var parsed = JSON.parse(result);
 				if(parsed.err === 0) {
-					$('#myHeader').html(parsed.msg);
+					$('#header').html(parsed.msg);
 				} else {
 					showResult(parsed.err, parsed.msg, false);
 				}
 			}
 		});
 
-		//Load the navbar component and assign all actions to each of its component
+		//Load the navBar component and assign all actions to each of its component
 		$.ajax({
 			url: "components/navbar.php",
 			success: (result) => {
-				//Set the content of the navbar
+				//Set the content of the navBar
 				var parsed = JSON.parse(result);
 				if(parsed.err === 0) {
-					$('#myNavbar').html(parsed.msg);
+					$('#navBar').html(parsed.msg);
 					navBarRegisterClick();
 				} else {
 					showResult(parsed.err, parsed.msg, false);

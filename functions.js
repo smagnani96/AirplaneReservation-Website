@@ -6,16 +6,19 @@ function loadAirplane() {
 			let parsed = JSON.parse(result);
 			if(parsed.err === 0) {
 				$('#content').html(parsed.msg);
-				seatsRegisterClick();
+				if($(".myReserved").length -1 === 0) {
+					$('#buyLink').hide();
+				}
 				updateStatistic();
+				seatsRegisterClick();
 			} else {
-				showResult(parsed.err, parsed.msg, false);
+				showResult(parsed.err, parsed.msg, parsed.err === -3);
 			}
 		}
 	});
 }
 
-//Function to assign to each navbar link its action
+//Function to assign to each navBar link its action
 function navBarRegisterClick() {
 	//Assign action to the login link (Load the login form)
 	$("#loginLink").click((e) => {
@@ -95,9 +98,17 @@ function navBarRegisterClick() {
 			data: "action=buy",
 			success: (result) => {
 				let parsed = JSON.parse(result);
-				if(parsed.err !== -2) {
-					//Buy sent since at least 1 seat => reload map
-					loadAirplane();
+				switch(parsed.err) {
+					case -2 : {
+						break;
+					}
+					case -3 : {
+						showResult(parsed.err, parsed.msg, true);
+						return;
+					}
+					default: {
+						loadAirplane();
+					}
 				}
 				showResult(parsed.err, parsed.msg, false);
 			}});
@@ -122,14 +133,31 @@ function seatsRegisterClick() {
 				success: (result) => {
 					let parsed = JSON.parse(result);
 					let seat = $("#" + id);
+					let buyLink = $('#buyLink');
 					//Update correctly the statistic map
-					if (parsed.err === 0) {
-						seat.removeClass().addClass("seat myReserved clickable");
-					} else if(parsed.err === 1){
-						seat.removeClass().addClass("seat available clickable");
+					switch (parsed.err) {
+						case 0: {
+							seat.removeClass().addClass("seat myReserved clickable");
+							break;	
+						}
+						case 1: {
+							seat.removeClass().addClass("seat available clickable");
+							break;	
+						}
+						case -3: {
+							showResult(parsed.err, parsed.msg, true);
+							return;
+						}
+						default: {
+							seat.removeClass().addClass("seat unavailable");
+							seat.unbind();
+							break;
+						}
+					}
+					if($('.myReserved').length - 1 > 0) {
+						buyLink.show();
 					} else {
-						seat.removeClass().addClass("seat unavailable");
-						seat.unbind();
+						buyLink.hide();
 					}
 					updateStatistic();
 					showResult(parsed.err, parsed.msg, false);
