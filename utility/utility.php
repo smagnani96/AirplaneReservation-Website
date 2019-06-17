@@ -1,20 +1,18 @@
 <?php
 
+/** Function to start a secure connection
+ *
+ */
 function sec_session_start() {
-//Force session only to use cookies
 	ini_set('session.use_only_cookies', 1);
-//Read current cookie params
 	$cookieParams = session_get_cookie_params();
-//Set cookie params
 	session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"], true, true);
-//Set session name to the chosen one
 	session_name('sec_session_id');
 	session_start();
-//Regenerate session id for security
 	session_regenerate_id();
 }
 
-/**
+/** Function to perform the login
  * @param $email
  * @param $password
  * @param mysqli $conn
@@ -49,7 +47,7 @@ function login($email, $password, $conn) {
 	}
 }
 
-/**
+/** Function to check if the user is logged
  * @param mysqli $conn
  * @return array|bool
  */
@@ -82,10 +80,13 @@ function login_check($conn) {
 			return ErrorObject::EXPIRED_SESSION;
 		}
 	} else {
-		return ErrorObject::MISSING_DATA;
+		return ErrorObject::LOGIN_CHECK_FAIL;
 	}
 }
 
+/** Function to logout the user
+ * @return array
+ */
 function logout() {
 	///Take the session parameters
 	$params = session_get_cookie_params();
@@ -98,7 +99,7 @@ function logout() {
 	return SuccessObject::LOGOUT;
 }
 
-/**
+/** Function to register the user in the system
  * @param $email
  * @param $password
  * @param mysqli $conn
@@ -129,59 +130,58 @@ function register($email, $password, $conn) {
 	}
 }
 
-/**
+/** Function to perform the purchase of all the user reserved seats
  * @param $email
  * @param mysqli $conn
  * @return array
  */
-function purchaseSeat($email, $conn) {
-	$myReserved = retrieveUserReserved($email, $conn);
-	if (sizeof($myReserved) == sizeof($_SESSION['myreserved'])) {
-		if ($insert_stmt = $conn->prepare("UPDATE reservation SET purchased = 1 WHERE email = ?")) {
-			$insert_stmt->bind_param('s', $email);
-			$insert_stmt->execute();
-			$insert_stmt->store_result();
-			if ($insert_stmt->affected_rows <= 0) {
-				return ErrorObject::SEAT_NOT_PRESENT;
-			} else {
-				$_SESSION['myreserved'] = [];
-				return SuccessObject::SEAT_PURCHASE;
-			}
-		} else {
-			return ErrorObject::DB_INTERNAL_ERROR;
-		}
-	} else {
-		$_SESSION['myreserved'] = [];
-		if ($insert_stmt = $conn->prepare("DELETE FROM reservation WHERE email = ? AND purchased = 0")) {
-			$insert_stmt->bind_param('s', $email);
-			$insert_stmt->execute();
-			return ErrorObject::SEAT_CHANGED;
-		} else {
-			return ErrorObject::DB_INTERNAL_ERROR;
-		}
-	}
+function buySeats($email, $conn) {
+    $conn->autocommit(FALSE);
+	$myReserved = [];
+	/*Retrieve user reserved seats from the database*/
+    if ($insert_stmt = $conn->prepare("SELECT seat FROM reservation WHERE email = ? AND purchased = 0 FOR UPDATE")) {
+        $insert_stmt->bind_param('s', $email);
+        $insert_stmt->execute();
+        $insert_stmt->bind_result($seat);
+        while ($insert_stmt->fetch()) {
+            array_push($myReserved, $seat);
+        }
+
+    } else {
+        return ErrorObject::DB_INTERNAL_ERROR;
+    }
+
+    /*Check that the seats stored in the db are equals to the ones stored in the session*/
+    if(sizeof($myReserved) == sizeof($_SESSION['myReserved'])) {
+        $query = "UPDATE reservation SET purchased = 1 WHERE email = ?";
+        foreach($_SESSION['myReserved'] as $seat) {
+            if(!in_array($seat, $myReserved)) {
+                $query = "DELETE FROM reservation WHERE email = ? AND purchased = 0";
+                break;
+            }
+        }
+    } else {
+        $query = "DELETE FROM reservation WHERE email = ? AND purchased = 0";
+    }
+
+    /*Perform the query*/
+    if ($insert_stmt = $conn->prepare($query)) {
+        $_SESSION['myReserved'] = [];
+        $insert_stmt->bind_param('s', $email);
+        $insert_stmt->execute();
+        $insert_stmt->store_result();
+        if ($insert_stmt->affected_rows <= 0) {
+            return ErrorObject::SEAT_CHANGED;
+        } else {
+            $conn->commit();
+            return SuccessObject::SEAT_PURCHASE;
+        }
+    } else {
+        return ErrorObject::DB_INTERNAL_ERROR;
+    }
 }
 
-/**
- * @param $email
- * @param mysqli $conn
- * @return array
- */
-function retrieveUserReserved($email, $conn) {
-	$seats = [];
-	if ($insert_stmt = $conn->prepare("SELECT seat FROM reservation WHERE email = ? AND purchased = 0")) {
-		$insert_stmt->bind_param('s', $email);
-		$insert_stmt->execute();
-		$insert_stmt->bind_result($seat);
-		while ($insert_stmt->fetch()) {
-			array_push($seats, $seat);
-		}
-
-	}
-	return $seats;
-}
-
-/**
+/** Function to reserve a seat
  * @param $username
  * @param $seat
  * @param mysqli $conn
@@ -189,9 +189,8 @@ function retrieveUserReserved($email, $conn) {
  */
 function reserveSeat($username, $seat, $conn) {
 	$conn->autocommit(FALSE);
-	$isReserve = true;
 
-	/*Retrieve seat reservation infos from db if already present*/
+	/*Retrieve seat reservation info from db if already present*/
 	if ($stm = $conn->prepare("SELECT email, purchased FROM reservation WHERE seat = ? LIMIT 1 FOR UPDATE")) {
 		$stm->bind_param("s", $seat);
 		$stm->execute();
@@ -205,30 +204,31 @@ function reserveSeat($username, $seat, $conn) {
 		return ErrorObject::DB_INTERNAL_ERROR;
 	}
 
-	//Correctly prepare query and session variable
-	if (in_array($seat, $_SESSION['myreserved'])) {
-		//UNRESERVE
+	/*Check if the seat is actually in the user session
+	    if yes -> the operation is an Unreserve seat
+	    if no  -> the operation is a Reserve seat
+	*/
+	if (in_array($seat, $_SESSION['myReserved'])) {
 		$isReserve = false;
-		$index = array_search($seat, $_SESSION['myreserved']);
-		unset($_SESSION['myreserved'][$index]);
-		if (!is_null($seatIsPurchased) && !is_null($seatEmail) && $seatEmail !== $username) {
+		unset($_SESSION['myReserved'][array_search($seat, $_SESSION['myReserved'])]);
+		/*Check that the seat has not been reserved by another user in the mean time*/
+		if (!is_null($seatEmail) && $seatEmail !== $username) {
 			return SuccessObject::SEAT_RERESERVED;
 		} else {
 			$query = "DELETE FROM reservation WHERE email = ? AND seat = ?";
 		}
 	} else {
-		//RESERVE
-		array_push($_SESSION['myreserved'], $seat);
+        $isReserve = true;
+		array_push($_SESSION['myReserved'], $seat);
 		$query = !is_null($seatIsPurchased) ? "UPDATE reservation SET email = ? WHERE seat = ?" : "INSERT INTO reservation VALUES (?, ?, 0)";
 	}
 
-	//Perform query
+	/*Perform the query*/
 	if ($stm2 = $conn->prepare($query)) {
 		$stm2->bind_param('ss', $username, $seat);
 		$stm2->execute();
-		$stm2->store_result();
 		if ($stm2->affected_rows <= 0) {
-			return ErrorObject::DB_INTERNAL_ERROR;
+			return ErrorObject::DB_LOGIC_ERROR;
 		} else {
 			$conn->commit();
 			return $isReserve ? SuccessObject::SEAT_RESERVED : SuccessObject::SEAT_UNRESERVED;
@@ -242,13 +242,14 @@ abstract class ErrorObject {
 	const MISSING_DATA = array('err' => -1, 'msg' => "Missing parameters in the request.");
 	const EXPIRED_SESSION = array('err' => -1, 'msg' => "Your session has expired, please login again.");
 	const MISSING_RECORD = array('err' => -1, 'msg' => "It does not seem to exist, please retry.");
-	const LOGIN_CHECK_FAIL = array('err' => -1, 'msg' => "Something has appened in your login session.");
+	const LOGIN_CHECK_FAIL = array('err' => -1, 'msg' => "You do not result logged, please login.");
 	const LOGIN_REQUIRED = array('err' => -1, 'msg' => "To perform that action you need to be logged.");
 	const PASSWORD_WRONG = array('err' => -1, 'msg' => "Password wrong, please try again.");
 	const PASSWORD_NOT_COMPLIANT = array('err' => -1, 'msg' => "Password not compliant.");
     const PASSWORD_NOT_EQUAL = array('err' => -1, 'msg' => "The passwords must correspond.");
 	const EMAIL_NOT_COMPLIANT = array('err' => -1, 'msg' => "Email not compliant.");
 	const DB_INTERNAL_ERROR = array('err' => -1, 'msg' => "We experienced an internal error, please try again.");
+    const DB_LOGIC_ERROR = array('err' => -1, 'msg' => "We experienced an error in the program logic, please check.");
 	const RECORD_DUPLICATE = array('err' => -1, 'msg' => "It seems already to exists.");
 	const CODE_INJECTION = array('err' => -1, 'msg' => "It seems that you tried to inject some code.");
 	const HTTPS_ENFORCE = array('err' => -1, 'msg' => "To perform that operation you must access through HTTPS.");

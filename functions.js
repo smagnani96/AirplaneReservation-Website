@@ -88,7 +88,7 @@ function navBarRegisterClick() {
 	//Assign action to the buy link (Perform buy action)
 	$("#buyLink").click((e) => {
 		e.preventDefault();
-		if($(".myreserved").length > 1) {
+		if($(".myReserved").length > 1) {
 			$.ajax({
 			type: "POST",
 			url: "utility/perform.php",
@@ -124,7 +124,7 @@ function seatsRegisterClick() {
 					let seat = $("#" + id);
 					//Update correctly the statistic map
 					if (parsed.err === 0) {
-						seat.removeClass().addClass("seat myreserved clickable");
+						seat.removeClass().addClass("seat myReserved clickable");
 					} else if(parsed.err === 1){
 						seat.removeClass().addClass("seat available clickable");
 					} else {
@@ -144,7 +144,7 @@ function updateStatistic() {
 	$("#total").html($(".seat").length);
 	$("#available").html($(".available").length - 1);
 	$("#purchased").html($(".unavailable").length - 1);
-	$("#myreserved").html($(".myreserved").length - 1);
+	$("#myReserved").html($(".myReserved").length - 1);
 	$("#reserved").html($(".reserved").length - 1);
 }
 
@@ -193,6 +193,8 @@ function registerEnterForm(type) {
 	});
 }
 
+let timeoutId = 0;
+
 //Function to show in the div box the colored message and reload or not the page
 function showResult(err, msg, reload) {
 	let box = $("#box");
@@ -203,7 +205,8 @@ function showResult(err, msg, reload) {
 		box.removeClass('success').addClass('error');
 	}
 	box.css('visibility', 'visible');
-	setTimeout(function() {
+	clearTimeout(timeoutId);
+	timeoutId = setTimeout(function() {
 		box.css('visibility', 'hidden');
 		if(reload){ 
 			location.reload();

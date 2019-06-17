@@ -25,20 +25,14 @@ if ($_POST["action"] == "logout") {
 	return;
 }
 
-/*Sanitizing parameters*/
-$email = $_POST['email'];
-$pass = $_POST['p'];
-$_POST['email'] = filter_var($email, FILTER_SANITIZE_STRING);
-$_POST['p'] = filter_var($pass, FILTER_SANITIZE_STRING);
-
 /*Check if they had some code*/
-if ($email != $_POST['email'] || $pass != $_POST['p']) {
+if (filter_var($_POST['email'], FILTER_SANITIZE_STRING) != $_POST['email'] || filter_var($_POST['p'], FILTER_SANITIZE_STRING) != $_POST['p']) {
 	echo json_encode(ErrorObject::CODE_INJECTION);
 	return;
 }
 
 /*Check if email compliant*/
-if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+if (filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) != $_POST['email']) {
 	echo json_encode(ErrorObject::EMAIL_NOT_COMPLIANT);
 	return;
 }
@@ -53,8 +47,8 @@ if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z0-9]).*$/', $_POST['p'])) {
 if ($_POST["action"] == "login") {
 	$ret = login($_POST['email'], $_POST['p'], $conn);
 	if ($_POST['remember'] == 1 && $ret['msg'] == 0) {
-		setcookie("email", $email, time() + (86400 * 30), "/", "", true, true);
-		setcookie("password", $pass, time() + (86400 * 30), "/", "", true, true);
+		setcookie("email", $_POST['email'], time() + (86400 * 30), "/", "", true, true);
+		setcookie("password", $_POST['p'], time() + (86400 * 30), "/", "", true, true);
 	}
 	echo json_encode($ret);
 	return;
@@ -62,19 +56,19 @@ if ($_POST["action"] == "login") {
 
 /*Check if it's a register request*/
 if ($_POST["action"] == "register") {
-	$confirm = $_POST['confirm'];
-	$_POST['confirm'] = filter_var($confirm, FILTER_SANITIZE_STRING);
-	if ($confirm != $_POST['confirm']) {
+    /*Check if confirm password has some code*/
+	if (filter_var($_POST['confirm'], FILTER_SANITIZE_STRING) != $_POST['confirm']) {
 		echo json_encode(ErrorObject::CODE_INJECTION);
 		return;
 	} else if ($_POST['confirm'] != $_POST['p']) {
 		echo json_encode(ErrorObject::PASSWORD_NOT_EQUAL);
 		return;
-	}
-	$ret = register($_POST['email'], $_POST['p'], $conn);
-	if ($ret['err'] == 0) {
-		login($_POST['email'], $_POST['p'], $conn);
-	}
-	echo json_encode($ret);
-	return;
+	} else {
+        $ret = register($_POST['email'], $_POST['p'], $conn);
+        if ($ret['err'] == 0) {
+            login($_POST['email'], $_POST['p'], $conn);
+        }
+        echo json_encode($ret);
+        return;
+    }
 }
