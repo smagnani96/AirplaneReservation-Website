@@ -2,7 +2,7 @@
 
 require_once "../utility/db.php";
 require_once "../utility/utility.php";
-require_once "../utility/airConf.php";
+require_once "../utility/config.php";
 
 sec_session_start();
 
@@ -11,6 +11,11 @@ $reservedSeats = [];
 $mineReserved = [];
 
 $logged = login_check($conn);
+
+if ($logged === ErrorObject::EXPIRED_SESSION) {
+	echo json_encode(ErrorObject::EXPIRED_SESSION);
+	return;
+}
 
 /*Retrieve the seats including the user specific ones if it is logged*/
 if ($sql = $conn->prepare("SELECT email, seat, purchased from reservation")) {
@@ -23,16 +28,17 @@ if ($sql = $conn->prepare("SELECT email, seat, purchased from reservation")) {
 		} else if ($logged === true && $email == $_SESSION['username']) {
 			array_push($mineReserved, $seat);
 		} else {
-		    array_push($reservedSeats, $seat);
-        }
+			array_push($reservedSeats, $seat);
+		}
 	}
 } else {
 	echo json_encode(ErrorObject::DB_INTERNAL_ERROR);
 	return;
 }
 
-if($logged === true){
-    $_SESSION['myReserved'] = $mineReserved;
+if ($logged === true) {
+	$_SESSION['myReserved'] = $mineReserved;
+	$_SESSION['timestamp'] = time();
 }
 
 $airplane = "<div class='statistic'>

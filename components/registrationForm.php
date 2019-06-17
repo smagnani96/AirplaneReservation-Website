@@ -7,7 +7,7 @@ if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVE
 } else {
 	echo json_encode(array('err' => 0, 'msg' => "
     <!--Register Form-->
-    <span class='formname'>Registration Form</span>
+    <span class='formName'>Registration Form</span>
     <form name='register-form' id='register-form' method='post' autocomplete='on'>
       	<div>
         	<label for='email' >Email</label><br/>

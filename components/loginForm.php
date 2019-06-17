@@ -11,7 +11,7 @@ if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVE
 	}
 	echo json_encode(array('err' => 0, 'msg' => "
 		<!--Login Form-->
-		<span class='formname'>Login Form</span>
+		<span class='formName'>Login Form</span>
 		<form name='login-form' id='login-form' method='post' autocomplete='on'>
 			<div>
 				<label for='email'>Email</label><br/>
