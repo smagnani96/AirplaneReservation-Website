@@ -2,7 +2,7 @@
 
 require_once "db.php";
 require_once "utility.php";
-require_once "airConf.php";
+require_once "config.php";
 
 sec_session_start();
 

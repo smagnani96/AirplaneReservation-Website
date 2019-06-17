@@ -1,9 +1,6 @@
 <?php
 
-define('SERVERNAME', 'localhost');
-define('USERNAME', 'root');
-define('PASSWORD', '');
-define('DATABASE', 'airplane_reservation');
+require_once "config.php";
 
 $conn = new mysqli(SERVERNAME, USERNAME, PASSWORD, DATABASE) or die;
 if ($conn->connect_errno) {
