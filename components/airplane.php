@@ -70,8 +70,6 @@ $airplane = "<div class='statistic'>
 			</div>
 			</div>";
 
-$airplane .= join(" ", $_SESSION['myReserved']);
-
 /*Print the airplane map*/
 $airplane .= "<div class='map'>";
 foreach (range(1, AIRPLANE_LENGTH) as $number) {
