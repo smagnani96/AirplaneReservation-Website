@@ -46,7 +46,7 @@ if ($_POST["action"] == "reserve") {
 /*Check if the action is BUY all the user current reserved tickets*/
 if ($_POST["action"] == "buy") {
 	/*Check if at least 1 seat reserved*/
-	if (empty($_SESSION['myReserved'])) {
+	if (isset($_SESSION['myReserved']) && sizeof($_SESSION['myReserved']) == 0) {
 		echo json_encode(ErrorObject::SEAT_NOT_PRESENT);
 		return;
 	} else {
