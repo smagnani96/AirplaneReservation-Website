@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 19, 2019 at 12:44 PM
+-- Generation Time: Jun 19, 2019 at 07:39 PM
 -- Server version: 10.3.15-MariaDB
 -- PHP Version: 7.3.6
 
@@ -40,12 +40,27 @@ CREATE TABLE `reservation` (
 --
 
 INSERT INTO `reservation` (`email`, `seat`, `purchased`) VALUES
-('u1@p.it', 'A4', 0),
+('u1@p.it', 'A1', 1),
+('u1@p.it', 'A2', 1),
+('u2@p.it', 'A3', 1),
+('u1@p.it', 'A4', 1),
+('u1@p.it', 'A5', 1),
+('u1@p.it', 'B1', 1),
 ('u2@p.it', 'B2', 1),
 ('u2@p.it', 'B3', 1),
 ('u2@p.it', 'B4', 1),
-('u1@p.it', 'D4', 0),
-('u2@p.it', 'F4', 0);
+('u1@p.it', 'C1', 1),
+('u1@p.it', 'C2', 1),
+('u2@p.it', 'C4', 1),
+('u1@p.it', 'C5', 1),
+('u1@p.it', 'D1', 1),
+('u1@p.it', 'D2', 1),
+('u1@p.it', 'D4', 1),
+('u1@p.it', 'E1', 1),
+('u2@p.it', 'E2', 1),
+('u1@p.it', 'E3', 0),
+('u1@p.it', 'F1', 1),
+('u1@p.it', 'F4', 1);
 
 -- --------------------------------------------------------
 
