@@ -239,5 +239,5 @@ function showResult(err, msg, reload) {
 		if(reload){ 
 			location.reload();
 		}
-	}, 1000);
+	}, 2000);
 }
