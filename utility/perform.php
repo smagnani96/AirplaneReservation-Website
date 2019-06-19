@@ -3,13 +3,10 @@
 require_once "db.php";
 require_once "utility.php";
 require_once "config.php";
+require_once "checkerAccess.php";
+require_once "checkerHttps.php";
 
 sec_session_start();
-
-if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVER_PORT'] != 443) {
-	echo json_encode(ErrorObject::HTTPS_ENFORCE);
-	return;
-}
 
 /*Check if the user is logged*/
 $ret = login_check($conn);
@@ -48,12 +45,12 @@ if ($_POST["action"] == "reserve") {
 
 /*Check if the action is BUY all the user current reserved tickets*/
 if ($_POST["action"] == "buy") {
-    /*Check if at least 1 seat reserved*/
-    if(empty($_SESSION['myReserved'])) {
-        echo json_encode(ErrorObject::SEAT_NOT_PRESENT);
-        return;
-    } else {
-        echo json_encode(buySeats($_SESSION['username'], $conn));
-        return;
-    }
+	/*Check if at least 1 seat reserved*/
+	if (empty($_SESSION['myReserved'])) {
+		echo json_encode(ErrorObject::SEAT_NOT_PRESENT);
+		return;
+	} else {
+		echo json_encode(buySeats($_SESSION['username'], $conn));
+		return;
+	}
 }

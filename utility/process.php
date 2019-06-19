@@ -2,14 +2,10 @@
 
 require_once 'db.php';
 require_once 'utility.php';
+require_once 'checkerAccess.php';
+require_once 'checkerHttps.php';
 
 sec_session_start();
-
-/*Check for HTTPS*/
-if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVER_PORT'] != 443) {
-	echo json_encode(ErrorObject::HTTPS_ENFORCE);
-	return;
-}
 
 /*Check if correct data*/
 if (!isset($_POST["action"]) || !in_array($_POST['action'], array('login', 'logout', 'register')) ||
@@ -56,7 +52,7 @@ if ($_POST["action"] == "login") {
 
 /*Check if it's a register request*/
 if ($_POST["action"] == "register") {
-    /*Check if confirm password has some code*/
+	/*Check if confirm password has some code*/
 	if (filter_var($_POST['confirm'], FILTER_SANITIZE_STRING) != $_POST['confirm']) {
 		echo json_encode(ErrorObject::CODE_INJECTION);
 		return;
@@ -64,11 +60,11 @@ if ($_POST["action"] == "register") {
 		echo json_encode(ErrorObject::PASSWORD_NOT_EQUAL);
 		return;
 	} else {
-        $ret = register($_POST['email'], $_POST['p'], $conn);
-        if ($ret['err'] == 0) {
-            login($_POST['email'], $_POST['p'], $conn);
-        }
-        echo json_encode($ret);
-        return;
-    }
+		$ret = register($_POST['email'], $_POST['p'], $conn);
+		if ($ret['err'] == 0) {
+			login($_POST['email'], $_POST['p'], $conn);
+		}
+		echo json_encode($ret);
+		return;
+	}
 }

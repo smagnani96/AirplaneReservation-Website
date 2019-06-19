@@ -1,5 +1,7 @@
 <?php
 
+require_once "checkerAccess.php";
+
 define('SERVERNAME', 'localhost');
 define('USERNAME', 'root');
 define('PASSWORD', '');
