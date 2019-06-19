@@ -87,5 +87,3 @@ fabric.properties
 # End of https://www.gitignore.io/api/webstorm
 
 .idea*
-utility/config.php
-*.pdf
