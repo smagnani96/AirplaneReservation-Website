@@ -151,17 +151,19 @@ function buySeats($email, $conn) {
 		return ErrorObject::DB_INTERNAL_ERROR;
 	}
 
+	$error = true;
+	$query = "DELETE FROM reservation WHERE email = ? AND purchased = 0";
 	/*Check that the seats stored in the db are equals to the ones stored in the session*/
 	if (sizeof($myReserved) == sizeof($_SESSION['myReserved'])) {
+		$error = false;
 		$query = "UPDATE reservation SET purchased = 1 WHERE email = ?";
 		foreach ($_SESSION['myReserved'] as $seat) {
 			if (!in_array($seat, $myReserved)) {
+				$error = true;
 				$query = "DELETE FROM reservation WHERE email = ? AND purchased = 0";
 				break;
 			}
 		}
-	} else {
-		$query = "DELETE FROM reservation WHERE email = ? AND purchased = 0";
 	}
 
 	/*Perform the query*/
@@ -174,7 +176,7 @@ function buySeats($email, $conn) {
 			return ErrorObject::SEAT_CHANGED;
 		} else {
 			$conn->commit();
-			return SuccessObject::SEAT_PURCHASE;
+			return $error ? ErrorObject::SEAT_CHANGED : SuccessObject::SEAT_PURCHASE;
 		}
 	} else {
 		return ErrorObject::DB_INTERNAL_ERROR;
