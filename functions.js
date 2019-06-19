@@ -2,7 +2,7 @@
 function loadAirplane() {
 	$.ajax({
 		url: "components/airplane.php",
-		success: (result) => {
+		success: function(result) {
 			let parsed = JSON.parse(result);
 			if(parsed.err === 0) {
 				$('#content').html(parsed.msg);
@@ -21,17 +21,17 @@ function loadAirplane() {
 //Function to assign to each navBar link its action
 function navBarRegisterClick() {
 	//Assign action to the login link (Load the login form)
-	$("#loginLink").click((e) => {
+	$("#loginLink").click(function(e) {
 		e.preventDefault();
 		$.ajax({
 			url: "components/loginForm.php",
-			success: (result) => {
+			success: function(result) {
 				let parsed = JSON.parse(result);
 				if(parsed.err === 0) {
 					//Set the content of the central div
 					$('#content').html(parsed.msg);
 					//Set the action to the submit button (Perform formSubmit)
-					$("#submit").click((e) => { 
+					$("#submit").click(function(e) { 
 						e.preventDefault();
 						formSubmit("login"); 
 					});
@@ -45,13 +45,13 @@ function navBarRegisterClick() {
 	});
 
 	//Assign action to the logout link (Logout and destroy session)
-	$("#logoutLink").click((e) => {
+	$("#logoutLink").click(function(e) {
 		e.preventDefault();
 		$.ajax({
 			type: "POST",
 			url: "utility/process.php",
 			data: "action=logout",
-			success: (result) => { 
+			success: function(result) { 
 				let parsed = JSON.parse(result);
 				showResult(parsed.err, parsed.msg, true);
 			}
@@ -59,17 +59,17 @@ function navBarRegisterClick() {
 	});
 
 	//Assign action to the register link (Load the register form)
-	$("#registerLink").click((e) => {
+	$("#registerLink").click(function(e) {
 		e.preventDefault();
 		$.ajax({
 			url: "components/registrationForm.php",
-			success: (result) => {
+			success: function(result) {
 				let parsed = JSON.parse(result);
 				if(parsed.err === 0) {
 					//Set the content of the main div
 					$('#content').html(parsed.msg);
 					//Set the action to be performed when submit is clicked (formSubmit)
-					$("#submit").click((e) => { 
+					$("#submit").click(function(e) { 
 						e.preventDefault();
 						formSubmit("register");
 					});
@@ -83,20 +83,20 @@ function navBarRegisterClick() {
 	});
 
 	//Assign action to the update link (Reload the airplane map)
-	$("#updateLink").click((e) => { 
+	$("#updateLink").click(function(e) { 
 		e.preventDefault();
 		loadAirplane();
 	});
 
 	//Assign action to the buy link (Perform buy action)
-	$("#buyLink").click((e) => {
+	$("#buyLink").click(function(e) {
 		e.preventDefault();
 		if($(".myReserved").length > 1) {
 			$.ajax({
 			type: "POST",
 			url: "utility/perform.php",
 			data: "action=buy",
-			success: (result) => {
+			success: function(result) {
 				let parsed = JSON.parse(result);
 				switch(parsed.err) {
 					case -2 : {
@@ -124,13 +124,13 @@ function seatsRegisterClick() {
 	$('.clickable').each(function() {
 		let id = $(this).attr('id');
 		//Perform the action to the server (Reserve/Unreserve)
-		$(this).click((e) => {
+		$(this).click(function(e) {
 			e.preventDefault();
 			$.ajax({
 				type: "POST",
 				url: "utility/perform.php",
 				data: "action=reserve&id=" + id,
-				success: (result) => {
+				success: function(result) {
 					let parsed = JSON.parse(result);
 					let seat = $("#" + id);
 					let buyLink = $('#buyLink');
@@ -214,7 +214,7 @@ function formSubmit(action) {
 //Function to register key enter to submit the form
 function registerEnterForm(type) {
 	let form = type === "login" ? $("#login-form") : $("#register-form");
-	form.keypress((e) => {
+	form.keypress(function(e) {
 		if ((e.which && e.which === 13) || (e.keyCode && e.keyCode === 13)) {
 			$("#submit").click();
 		}
