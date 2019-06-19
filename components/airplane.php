@@ -3,6 +3,7 @@
 require_once "../utility/db.php";
 require_once "../utility/utility.php";
 require_once "../utility/config.php";
+require_once "../utility/checkerAccess.php";
 
 sec_session_start();
 
@@ -12,9 +13,16 @@ $mineReserved = [];
 
 $logged = login_check($conn);
 
+/*Check if session expired*/
 if ($logged === ErrorObject::EXPIRED_SESSION) {
-	echo json_encode(ErrorObject::EXPIRED_SESSION);
+	echo json_encode($logged);
 	return;
+}
+
+/*If logged update timestamp and empty Reserved since they are reloaded*/
+if ($logged === true) {
+	$_SESSION['myReserved'] = array();
+	$_SESSION['timestamp'] = time();
 }
 
 /*Retrieve the seats including the user specific ones if it is logged*/
@@ -27,6 +35,7 @@ if ($sql = $conn->prepare("SELECT email, seat, purchased from reservation")) {
 			array_push($purchasedSeats, $seat);
 		} else if ($logged === true && $email == $_SESSION['username']) {
 			array_push($mineReserved, $seat);
+			array_push($_SESSION['myReserved'], $seat);
 		} else {
 			array_push($reservedSeats, $seat);
 		}
@@ -36,11 +45,7 @@ if ($sql = $conn->prepare("SELECT email, seat, purchased from reservation")) {
 	return;
 }
 
-if ($logged === true) {
-	$_SESSION['myReserved'] = $mineReserved;
-	$_SESSION['timestamp'] = time();
-}
-
+/*Print the statistic*/
 $airplane = "<div class='statistic'>
 			<div>
 				<span>Total Seats: </span><br/>
@@ -65,9 +70,11 @@ $airplane = "<div class='statistic'>
 			</div>
 			</div>";
 
+/*Print the airplane map*/
 $airplane .= "<div class='map'>";
 foreach (range(1, AIRPLANE_LENGTH) as $number) {
 	foreach (range('A', chr(ord('A') + AIRPLANE_WIDTH - 1)) as $letter) {
+		/*Assign class coherently (is clickable, is reserved, etc..)*/
 		$class = "seat " . ($logged === true ? "clickable " : "");
 		$seat = "" . $letter . $number;
 		if (in_array($seat, $purchasedSeats)) {

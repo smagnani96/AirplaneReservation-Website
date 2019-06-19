@@ -1,11 +1,10 @@
 <?php
 
 require_once "../utility/utility.php";
+require_once "../utility/checkerAccess.php";
+require_once "../utility/checkerHttps.php";
 
-if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVER_PORT'] != 443) {
-	echo json_encode(ErrorObject::HTTPS_ENFORCE);
-} else {
-	echo json_encode(array('err' => 0, 'msg' => "
+echo json_encode(array('err' => 0, 'msg' => "
     <!--Register Form-->
     <span class='formName'>Registration Form</span>
     <form name='register-form' id='register-form' method='post' autocomplete='on'>
@@ -23,4 +22,3 @@ if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVE
         </div>
         <input type='button' value='Register' id='submit' />
     </form>", ));
-}

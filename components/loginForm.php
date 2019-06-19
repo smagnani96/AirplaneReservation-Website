@@ -1,15 +1,14 @@
 <?php
 
 require_once "../utility/utility.php";
+require_once "../utility/checkerAccess.php";
+require_once "../utility/checkerHttps.php";
 
-if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVER_PORT'] != 443) {
-	echo json_encode(ErrorObject::HTTPS_ENFORCE);
-} else {
-	if (isset($_COOKIE['email'], $_COOKIE['password'])) {
-		$email = $_COOKIE['email'];
-		$password = $_COOKIE['password'];
-	}
-	echo json_encode(array('err' => 0, 'msg' => "
+if (isset($_COOKIE['email'], $_COOKIE['password'])) {
+	$email = $_COOKIE['email'];
+	$password = $_COOKIE['password'];
+}
+echo json_encode(array('err' => 0, 'msg' => "
 		<!--Login Form-->
 		<span class='formName'>Login Form</span>
 		<form name='login-form' id='login-form' method='post' autocomplete='on'>
@@ -27,4 +26,3 @@ if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'off') || $_SERVER['SERVE
 			</div>
 			<input type='button' name='submit' value='Login' id='submit'/>
 	</form>"));
-}
