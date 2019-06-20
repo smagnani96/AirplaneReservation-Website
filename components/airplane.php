@@ -17,10 +17,8 @@ $logged = login_check($conn);
 if ($logged === ErrorObject::EXPIRED_SESSION) {
 	echo json_encode($logged);
 	return;
-}
-
-/*If logged update timestamp and empty Reserved since they are reloaded*/
-if ($logged === true) {
+} else if ($logged === true) {
+	/*If logged update timestamp*/
 	$_SESSION['myReserved'] = array();
 	$_SESSION['timestamp'] = time();
 }
@@ -45,8 +43,7 @@ if ($sql = $conn->prepare("SELECT email, seat, purchased from reservation")) {
 	return;
 }
 
-/*Print the statistic*/
-$airplane = "<div class='statistic'>
+$airplane = "<div class='statistic' >
 			<div>
 				<span>Total Seats: </span><br/>
 				<span>Available: </span><br/>
@@ -68,10 +65,10 @@ $airplane = "<div class='statistic'>
 				<div class='color-box reserved'>...</div><br/>" .
 	($logged === true ? "<div class='color-box myReserved'>...</div>" : "") . "
 			</div>
-			</div>";
+		</div>";
 
+$airplane .= '<div class="map">';
 /*Print the airplane map*/
-$airplane .= "<div class='map'>";
 foreach (range(1, AIRPLANE_LENGTH) as $number) {
 	foreach (range('A', chr(ord('A') + AIRPLANE_WIDTH - 1)) as $letter) {
 		/*Assign class coherently (is clickable, is reserved, etc..)*/

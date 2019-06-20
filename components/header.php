@@ -14,5 +14,3 @@ if (login_check($conn) === true) {
 
 echo json_encode(array('err' => 0, 'msg' => $header));
 
-?>
-
