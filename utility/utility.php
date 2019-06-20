@@ -37,6 +37,7 @@ function login($email, $password, $conn) {
 				//Correct password, set all session parameters
 				$_SESSION['username'] = $username;
 				$_SESSION['timestamp'] = time();
+				$_SESSION['myReserved'] = retrieveUserRes($username, $conn);
 				$_SESSION['login_string'] = hash('sha512', $password . $_SERVER['HTTP_USER_AGENT']);
 				return SuccessObject::LOGIN;
 			} else {
@@ -48,6 +49,28 @@ function login($email, $password, $conn) {
 	} else {
 		return ErrorObject::DB_INTERNAL_ERROR;
 	}
+}
+
+/**Function to retrieve the user reserved seats
+ * @param $email
+ * @param mysqli $conn
+ * @return array
+ */
+function retrieveUserRes($email, $conn) {
+	$myReserved = array();
+	/*Retrieve user reserved seats from the database*/
+	if ($insert_stmt = $conn->prepare("SELECT seat FROM reservation WHERE email = ? AND purchased = 0")) {
+		$insert_stmt->bind_param('s', $email);
+		$insert_stmt->execute();
+		$insert_stmt->bind_result($seat);
+		while ($insert_stmt->fetch()) {
+			array_push($myReserved, $seat);
+		}
+
+	} else {
+		return ErrorObject::DB_INTERNAL_ERROR;
+	}
+	return $myReserved;
 }
 
 /** Function to check if the user is logged
@@ -154,6 +177,10 @@ function buySeats($email, $conn) {
 		return ErrorObject::DB_INTERNAL_ERROR;
 	}
 
+	if (sizeof($_SESSION['myReserved']) == 0) {
+		return ErrorObject::SEAT_NOT_PRESENT;
+	}
+
 	$error = false;
 	$query = "UPDATE reservation SET purchased = 1 WHERE email = ?";
 	/*Check that the seats stored in the db are equals to the ones stored in the session*/
@@ -169,10 +196,10 @@ function buySeats($email, $conn) {
 		$insert_stmt->execute();
 		$insert_stmt->store_result();
 		$conn->commit();
-		if ($insert_stmt->affected_rows <= 0) {
+		if ($insert_stmt->affected_rows <= 0 || $error) {
 			return ErrorObject::SEAT_CHANGED;
 		} else {
-			return $error ? ErrorObject::SEAT_CHANGED : SuccessObject::SEAT_PURCHASE;
+			return SuccessObject::SEAT_PURCHASE;
 		}
 	} else {
 		return ErrorObject::DB_INTERNAL_ERROR;
@@ -189,15 +216,15 @@ function reserveSeat($username, $seat, $conn) {
 	$conn->autocommit(FALSE);
 
 	/*Retrieve seat reservation info from db if already present*/
-	if ($stm = $conn->prepare("SELECT email, purchased FROM reservation WHERE seat = ? FOR UPDATE")) {
+	if ($stm = $conn->prepare("SELECT email, purchased FROM reservation WHERE seat = ? LIMIT 1 FOR UPDATE")) {
 		$stm->bind_param("s", $seat);
 		$stm->execute();
 		$stm->bind_result($seatEmail, $seatIsPurchased);
 		while ($stm->fetch()) {
 			if ($seatIsPurchased == 1) {
-			    if($seatEmail != $username && in_array($seat, $_SESSION['myReserved'])) {
-                    unset($_SESSION['myReserved'][array_search($seat, $_SESSION['myReserved'])]);
-                }
+				if ($seatEmail != $username && in_array($seat, $_SESSION['myReserved'])) {
+					unset($_SESSION['myReserved'][array_search($seat, $_SESSION['myReserved'])]);
+				}
 				return ErrorObject::SEAT_ALREADY_SOLD;
 			}
 		}
@@ -242,7 +269,7 @@ function reserveSeat($username, $seat, $conn) {
 abstract class ErrorObject {
 	const MISSING_DATA = array('err' => -1, 'msg' => "Missing parameters in the request.");
 	const EXPIRED_SESSION = array('err' => -3, 'msg' => "Your session has expired, please login again.");
-	const MISSING_RECORD = array('err' => -1, 'msg' => "It does not seem to exist, please retry.");
+	const MISSING_RECORD = array('err' => -1, 'msg' => "User does not exist.");
 	const LOGIN_CHECK_FAIL = array('err' => -1, 'msg' => "You do not result logged, please login.");
 	const LOGIN_REQUIRED = array('err' => -1, 'msg' => "To perform that action you need to be logged.");
 	const PASSWORD_WRONG = array('err' => -1, 'msg' => "Password wrong, please try again.");
@@ -255,7 +282,7 @@ abstract class ErrorObject {
 	const SEAT_OUT_DOMAIN = array('err' => -1, 'msg' => "The requested seat seems not to exist.");
 	const SEAT_NOT_PRESENT = array('err' => -2, 'msg' => "To perform that action you need to reserve at least 1 seat.");
 	const SEAT_ALREADY_SOLD = array('err' => -1, 'msg' => "The seat has already been purchased.");
-	const SEAT_CHANGED = array('err' => -1, 'msg' => "Purchase failed because one of your seats has been reserved in the mean while.");
+	const SEAT_CHANGED = array('err' => -1, 'msg' => "Purchase failed because someone stole your reservation.");
 }
 
 abstract class SuccessObject {
