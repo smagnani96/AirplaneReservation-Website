@@ -1,15 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.0.1
--- https://www.phpmyadmin.net/
+-- version 4.5.4.1deb2ubuntu2.1
+-- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jun 19, 2019 at 07:39 PM
--- Server version: 10.3.15-MariaDB
--- PHP Version: 7.3.6
+-- Generation Time: Jun 20, 2019 at 12:53 PM
+-- Server version: 5.7.26-0ubuntu0.16.04.1
+-- PHP Version: 7.0.33-0ubuntu0.16.04.5
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
-START TRANSACTION;
 SET time_zone = "+00:00";
 
 
@@ -40,27 +38,12 @@ CREATE TABLE `reservation` (
 --
 
 INSERT INTO `reservation` (`email`, `seat`, `purchased`) VALUES
-('u1@p.it', 'A1', 1),
-('u1@p.it', 'A2', 1),
-('u2@p.it', 'A3', 1),
-('u1@p.it', 'A4', 1),
-('u1@p.it', 'A5', 1),
-('u1@p.it', 'B1', 1),
+('u1@p.it', 'A4', 0),
 ('u2@p.it', 'B2', 1),
 ('u2@p.it', 'B3', 1),
 ('u2@p.it', 'B4', 1),
-('u1@p.it', 'C1', 1),
-('u1@p.it', 'C2', 1),
-('u2@p.it', 'C4', 1),
-('u1@p.it', 'C5', 1),
-('u1@p.it', 'D1', 1),
-('u1@p.it', 'D2', 1),
-('u1@p.it', 'D4', 1),
-('u1@p.it', 'E1', 1),
-('u2@p.it', 'E2', 1),
-('u1@p.it', 'E3', 0),
-('u1@p.it', 'F1', 1),
-('u1@p.it', 'F4', 1);
+('u1@p.it', 'D4', 0),
+('u2@p.it', 'F4', 0);
 
 -- --------------------------------------------------------
 
@@ -98,7 +81,6 @@ ALTER TABLE `reservation`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`email`);
-COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
