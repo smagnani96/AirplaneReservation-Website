@@ -6,8 +6,8 @@ function loadAirplane() {
 			let parsed = JSON.parse(result);
 			if(parsed.err === 0) {
 				$('#content').html(parsed.msg);
-				if($(".myReserved").length -1 === 0) {
-					$('#buyLink').hide();
+				if($(".myReserved").length -1 <= 0) {
+					$('#buyLink').css({'pointer-events': 'none', 'opacity': '0.2'});
 				}
 				updateStatistic();
 				seatsRegisterClick();
@@ -91,30 +91,26 @@ function navBarRegisterClick() {
 	//Assign action to the buy link (Perform buy action)
 	$("#buyLink").click(function(e) {
 		e.preventDefault();
-		if($(".myReserved").length > 1) {
-			$.ajax({
-			type: "POST",
-			url: "utility/perform.php",
-			data: "action=buy",
-			success: function(result) {
-				let parsed = JSON.parse(result);
-				switch(parsed.err) {
-					case -2 : {
-						break;
-					}
-					case -3 : {
-						showResult(parsed.err, parsed.msg, true);
-						return;
-					}
-					default: {
-						loadAirplane();
-					}
+		$.ajax({
+		type: "POST",
+		url: "utility/perform.php",
+		data: "action=buy",
+		success: function(result) {
+			let parsed = JSON.parse(result);
+			switch(parsed.err) {
+				case -2 : {
+					break;
 				}
-				showResult(parsed.err, parsed.msg, false);
-			}});
-		} else {
-			showResult(-1, "To perform that action you need to reserve at least 1 seat.", false);
-		}
+				case -3 : {
+					showResult(parsed.err, parsed.msg, true);
+					return;
+				}
+				default: {
+					loadAirplane();
+				}
+			}
+			showResult(parsed.err, parsed.msg, false);
+		}});
 	});
 }
 
@@ -133,7 +129,6 @@ function seatsRegisterClick() {
 				success: function(result) {
 					let parsed = JSON.parse(result);
 					let seat = $("#" + id);
-					let buyLink = $('#buyLink');
 					//Update correctly the statistic map
 					switch (parsed.err) {
 						case 0: {
@@ -155,9 +150,9 @@ function seatsRegisterClick() {
 						}
 					}
 					if($('.myReserved').length - 1 > 0) {
-						buyLink.show();
+						$('#buyLink').css({'pointer-events': 'visible', 'opacity': '1'});
 					} else {
-						buyLink.hide();
+						$('#buyLink').css({'pointer-events': 'none', 'opacity': '0.2'});
 					}
 					updateStatistic();
 					showResult(parsed.err, parsed.msg, false);
